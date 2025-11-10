@@ -1,0 +1,29 @@
+{
+  "name": "@genai-med-chat/chat",
+  "version": "1.0.0",
+  "description": "Chat components for GenAI Medical Chat",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "files": ["dist"],
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@genai-med-chat/shared": "^1.0.0",
+    "@genai-med-chat/store": "^1.0.0",
+    "react-redux": "^9.1.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+        "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16"
+  }
+}
