@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+*.egg-info
+
+# Virtual Environment
+.env
+*.env
+.venv/
+venv/
+ENV/
+env/
+.env.*
+
+# IDE
+.vscode/
+*.swp
+*.swo
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Jupyter
+.ipynb_checkpoints
+
+# System
+.DS_Store
+Thumbs.db
+
+# Logs and Databases
+*.log
+*.sqlite3
+*.db
+
+# Testing
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# Dependencies
+Pipfile.lock
+poetry.lock
+
+# Frontend
+/frontend/dist/
+/frontend/build/
+/frontend/vite-react/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backend (microservices) data and artifacts
+backend/data/
+backend/data/ft-model/
+backend/uploads/
+backend/tmp/
+
+# Celery worker runtime files
+celerybeat-schedule
+celerybeat.pid
+celery*.log
+
+# Docker Compose local overrides and env files
+infra/docker-compose.override.yml
+infra/*.env
+
+# General caches
+.cache/
