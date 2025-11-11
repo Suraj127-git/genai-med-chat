@@ -1,0 +1,20 @@
+{
+  "name": "@genai-med-chat/store",
+  "version": "1.0.0",
+  "description": "Shared Redux store and slices for GenAI Medical Chat",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'No build needed'",
+    "dev": "echo 'Use consumer app dev'"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.2.7",
+    "react-redux": "^9.1.2",
+    "axios": "^1.7.4"
+  }
+}

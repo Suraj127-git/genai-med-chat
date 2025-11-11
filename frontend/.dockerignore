@@ -1,0 +1,10 @@
+node_modules
+packages/*/node_modules
+dist
+packages/*/dist
+.vscode
+.git
+.gitignore
+Dockerfile*
+npm-debug.log
+.env

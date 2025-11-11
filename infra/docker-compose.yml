@@ -1,0 +1,168 @@
+services:
+  # ======================
+  # MySQL Database
+  # ======================
+  mysql:
+    container_name: genai_mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: genai_med
+      MYSQL_USER: genai
+      MYSQL_PASSWORD: genai
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - genai_network
+
+  # ======================
+  # phpMyAdmin
+  # ======================
+
+  phpmyadmin:
+    container_name: genai_phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: genai_mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpass
+    ports:
+      - "8081:80"
+    networks:
+      - genai_network
+
+  # ======================
+  # Redis
+  # ======================
+  redis:
+    container_name: genai_redis
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - genai_network
+    restart: always
+
+  # ======================
+  # Qdrant
+  # ======================
+  qdrant:
+    container_name: genai_qdrant
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      - genai_network
+    restart: always
+
+  # ======================
+  # Microservices run locally via Poetry/Makefile
+  # (Gateway and individual services are not containerized here yet.)
+  # ======================
+  gateway:
+    container_name: genai_gateway
+    build:
+      context: ../backend/app/gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      CHAT_SERVICE_URL: http://genai_chat_service:8003
+    depends_on:
+      mysql:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - genai_network
+    restart: always
+
+  chat_service:
+    container_name: genai_chat_service
+    build:
+      context: ../backend/app/services/chat_service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
+      QDRANT_URL: http://genai_qdrant:6333
+    depends_on:
+      mysql:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - genai_network
+    restart: always
+
+  # ======================
+  # Celery Worker (for long-running ingestion tasks)
+  # ======================
+  worker:
+    container_name: genai_worker
+    build:
+      context: ../backend/worker
+      dockerfile: Dockerfile
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CHAT_SERVICE_URL: http://genai_chat_service:8003
+    depends_on:
+      redis:
+        condition: service_started
+      chat_service:
+        condition: service_started
+    networks:
+      - genai_network
+    restart: always
+    volumes:
+      - backend_data:/data
+
+
+  # ======================
+  # Frontend (React + Vite)
+  # ======================
+  frontend:
+      build:
+        context: ../frontend
+        dockerfile: Dockerfile
+      container_name: genai-frontend
+      ports:
+        - "5173:5173"
+      volumes:
+        - ../frontend/vite-react/src:/app/src
+        - ../frontend/vite-react/index.html:/app/index.html
+      working_dir: /app
+      command: npm run dev
+
+
+# ======================
+# Volumes
+# ======================
+volumes:
+  mysql_data:
+  redis_data:
+  qdrant_data:
+  backend_data:
+  frontend_node_modules:
+  celery_data:
+
+# ======================
+# Shared Network
+# ======================
+networks:
+  genai_network:
+    driver: bridge

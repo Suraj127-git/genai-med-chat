@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "chat_service"
+version = "0.1.0"
+description = "GenAI medical chat microservice"
+authors = ["Suraj Shetty <suraj@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.0"
+uvicorn = { version = "^0.30.0", extras = ["standard"] }
+shared = { path = "../../shared", develop = true }
+sqlalchemy = "^2.0.0"
+pydantic = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
