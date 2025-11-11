@@ -16,6 +16,7 @@
     "publish": "lerna publish"
   },
   "devDependencies": {
+    "vite": "^5.0.0",
     "lerna": "^7.4.2",
     "jest": "^29.7.0",
     "babel-jest": "^29.7.0",
