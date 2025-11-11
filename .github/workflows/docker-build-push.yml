@@ -38,3 +38,39 @@ jobs:
             ${{ vars.DOCKER_USER }}/genai-frontend:latest
             ${{ vars.DOCKER_USER }}/genai-frontend:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # 🚀 Build and push backend Gateway image
+      - name: Build and push backend gateway image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/app/gateway
+          file: ./backend/app/gateway/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USER }}/genai-gateway:latest
+            ${{ vars.DOCKER_USER }}/genai-gateway:${{ github.sha }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # 🚀 Build and push backend Chat Service image
+      - name: Build and push backend chat-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/app/services/chat_service
+          file: ./backend/app/services/chat_service/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USER }}/genai-chat-service:latest
+            ${{ vars.DOCKER_USER }}/genai-chat-service:${{ github.sha }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # 🚀 Build and push backend Celery Worker image
+      - name: Build and push backend worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/worker
+          file: ./backend/worker/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USER }}/genai-worker:latest
+            ${{ vars.DOCKER_USER }}/genai-worker:${{ github.sha }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
