@@ -39,40 +39,40 @@ jobs:
       #       ${{ vars.DOCKER_USER }}/genai-frontend:${{ github.sha }}
       #     outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
-      # Build and push backend Gateway image (context = repo root)
+      # 🚀 Build and push backend Gateway image
       - name: Build and push backend gateway image
         uses: docker/build-push-action@v6
         with:
-          context: .                                     # <-- repo root so ../shared is accessible
-          file: ./backend/app/gateway/Dockerfile         # <-- Dockerfile path inside repo
+          context: .                                 # ✅ use repo root as context
+          file: ./backend/app/gateway/Dockerfile     # Dockerfile path stays the same
           push: true
           tags: |
             ${{ vars.DOCKER_USER }}/genai-gateway:latest
             ${{ vars.DOCKER_USER }}/genai-gateway:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-      # Chat service
+      
+      # 🚀 Build and push backend Chat Service image
       - name: Build and push backend chat-service image
         uses: docker/build-push-action@v6
         with:
-          context: .                                     # <-- repo root
+          context: .                                 # ✅ root context
           file: ./backend/app/services/chat_service/Dockerfile
           push: true
           tags: |
             ${{ vars.DOCKER_USER }}/genai-chat-service:latest
             ${{ vars.DOCKER_USER }}/genai-chat-service:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-      # Worker (if it already only copies files inside its folder you may keep the smaller context,
-      # but using repo root is safe and consistent)
+      
+      # 🚀 Build and push backend Worker image
       - name: Build and push backend worker image
         uses: docker/build-push-action@v6
         with:
-          context: .                                     # repo root
+          context: .                                 # ✅ root context
           file: ./backend/worker/Dockerfile
           push: true
           tags: |
             ${{ vars.DOCKER_USER }}/genai-worker:latest
             ${{ vars.DOCKER_USER }}/genai-worker:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
+  
+  
