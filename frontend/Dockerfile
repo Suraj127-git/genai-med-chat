@@ -1,24 +1,56 @@
-# Use official Node.js image
-FROM node:20-alpine
+# syntax=docker/dockerfile:1
 
-# Set working directory
+# ------------------------------------------------------------
+# Dependencies stage: install monorepo deps with caching
+# ------------------------------------------------------------
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy only the vite-react folder content into /app
-COPY vite-react/package*.json ./
+# Copy root manifests
+COPY package.json package-lock.json lerna.json ./
 
-# Install dependencies
+# Copy workspace manifests to improve caching
+COPY packages/*/package.json packages/*/
+
+# Use npm install (not npm ci) for monorepos/workspaces
+# npm ci breaks with workspace links during Docker builds
 RUN npm install
 
-# Copy the rest of the app
-COPY vite-react ./
+# ------------------------------------------------------------
+# Development stage
+# ------------------------------------------------------------
+FROM node:20-alpine AS dev
+WORKDIR /app
+ENV NODE_ENV=development
 
-# Build the app
-RUN npm run build
+COPY . .
+COPY --from=deps /app/node_modules /app/node_modules
 
-# Expose port for the dev server
 EXPOSE 5173
-
-# Start dev server
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
+# ------------------------------------------------------------
+# Build stage
+# ------------------------------------------------------------
+FROM node:20-alpine AS builder
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY . .
+COPY --from=deps /app/node_modules /app/node_modules
+
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+RUN npm run build
+
+# ------------------------------------------------------------
+# Production stage
+# ------------------------------------------------------------
+FROM nginx:alpine AS prod
+WORKDIR /usr/share/nginx/html
+
+COPY --from=builder /app/packages/app/dist .
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
