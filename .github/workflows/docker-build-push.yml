@@ -28,16 +28,16 @@ jobs:
           endpoint: "shettyanna/gen-ai-testing" # 👈 Builder name from Docker Cloud
 
       # 🚀 Build and push frontend image (monorepo-aware)
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend          # 👈 build context must be ./frontend
-          file: ./frontend/Dockerfile  # 👈 Dockerfile path inside frontend folder
-          push: true
-          tags: |
-            ${{ vars.DOCKER_USER }}/genai-frontend:latest
-            ${{ vars.DOCKER_USER }}/genai-frontend:${{ github.sha }}
-          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+      # - name: Build and push frontend image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./frontend          # 👈 build context must be ./frontend
+      #     file: ./frontend/Dockerfile  # 👈 Dockerfile path inside frontend folder
+      #     push: true
+      #     tags: |
+      #       ${{ vars.DOCKER_USER }}/genai-frontend:latest
+      #       ${{ vars.DOCKER_USER }}/genai-frontend:${{ github.sha }}
+      #     outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
       # 🚀 Build and push backend Gateway image
       - name: Build and push backend gateway image
