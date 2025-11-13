@@ -48,7 +48,7 @@ services:
   # ======================
   redis:
     container_name: genai_redis
-    image: redis:7
+    image: redis:latest
     ports:
       - "6379:6379"
     networks:
@@ -60,7 +60,7 @@ services:
   # ======================
   qdrant:
     container_name: genai_qdrant
-    image: qdrant/qdrant
+    image: qdrant/qdrant:latest
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -69,11 +69,13 @@ services:
     restart: always
 
   # ======================
-  # Gateway (FastAPI)
+  # Backend - Gateway
   # ======================
   gateway:
     container_name: genai_gateway
     image: shettyanna/genai-gateway:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8000:8000"
     environment:
@@ -83,18 +85,18 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_started
-      chat_service:
-        condition: service_started
     networks:
       - genai_network
     restart: always
 
   # ======================
-  # Chat Service (FastAPI)
+  # Backend - Chat Service
   # ======================
   chat_service:
     container_name: genai_chat_service
     image: shettyanna/genai-chat-service:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8003:8003"
     environment:
@@ -110,11 +112,13 @@ services:
     restart: always
 
   # ======================
-  # Celery Worker (Python)
+  # Backend - Celery Worker
   # ======================
   worker:
     container_name: genai_worker
     image: shettyanna/genai-worker:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     environment:
       CELERY_BROKER_URL: redis://genai_redis:6379/0
       CELERY_RESULT_BACKEND: redis://genai_redis:6379/1
@@ -127,18 +131,48 @@ services:
     networks:
       - genai_network
     restart: always
+    volumes:
+      - backend_data:/data
 
   # ======================
-  # Frontend (Nginx)
+  # Frontend
   # ======================
   frontend:
     container_name: genai_frontend
     image: shettyanna/genai-frontend:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "5173:80"
+      - "5173:5173"
     networks:
       - genai_network
     restart: always
+
+  # ======================
+  # Watchtower Auto Updater
+  # ======================
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      --interval 30
+      --cleanup
+      --label-enable
+      --revive-stopped
+    networks:
+      - genai_network
+
+# ======================
+# Volumes
+# ======================
+volumes:
+  mysql_data:
+  redis_data:
+  qdrant_data:
+  backend_data:
 
 # ======================
 # Shared Network
