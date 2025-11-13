@@ -50,7 +50,6 @@ jobs:
             ${{ vars.DOCKER_USER }}/genai-gateway:latest
             ${{ vars.DOCKER_USER }}/genai-gateway:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
       # 🚀 Build and push backend Chat Service image
       - name: Build and push backend chat-service image
         uses: docker/build-push-action@v6
@@ -62,7 +61,6 @@ jobs:
             ${{ vars.DOCKER_USER }}/genai-chat-service:latest
             ${{ vars.DOCKER_USER }}/genai-chat-service:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
       # 🚀 Build and push backend Worker image
       - name: Build and push backend worker image
         uses: docker/build-push-action@v6
