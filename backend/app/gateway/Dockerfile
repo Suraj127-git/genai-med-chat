@@ -3,8 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copy shared lib and gateway code
-COPY backend/shared/shared /app/shared
-COPY backend/app/gateway /app/gateway
+COPY ./backend/app/shared/shared /app/shared
+COPY ./backend/app/gateway/gateway /app/gateway
 
 RUN pip install --no-cache-dir fastapi uvicorn httpx
 

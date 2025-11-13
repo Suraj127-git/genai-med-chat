@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app/worker
 
-COPY backend/worker /app/worker
+COPY ./backend/worker /app/worker
 
 RUN pip install --no-cache-dir "celery[redis]" requests
 

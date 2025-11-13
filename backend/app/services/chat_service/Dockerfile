@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy shared lib and chat_service code
-COPY backend/shared/shared /app/shared
-COPY backend/app/services/chat_service /app/chat_service
+# Copy shared lib and chat service code
+COPY ./backend/app/shared/shared /app/shared
+COPY ./backend/app/services/chat_service/chat_service /app/chat_service
 
 RUN pip install --no-cache-dir fastapi uvicorn sqlalchemy pymysql requests pydantic-settings
 
