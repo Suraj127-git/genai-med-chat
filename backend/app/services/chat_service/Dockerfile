@@ -1,6 +1,5 @@
 FROM python:3.12-slim
 
-# Minimal system deps for MySQL client builds
 RUN apt-get update && apt-get install -y \
     build-essential \
     default-libmysqlclient-dev \
@@ -9,10 +8,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy shared lib and chat_service code
-COPY ../../shared/shared /app/shared
-COPY ./chat_service /app/chat_service
+COPY backend/shared/shared /app/shared
+COPY backend/app/services/chat_service /app/chat_service
 
-# Install required Python deps (keep image light; optional libs are omitted)
 RUN pip install --no-cache-dir fastapi uvicorn sqlalchemy pymysql requests pydantic-settings
 
 ENV PYTHONPATH=/app
