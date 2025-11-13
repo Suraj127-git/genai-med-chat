@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   # ======================
   # MySQL Database
@@ -25,7 +27,6 @@ services:
   # ======================
   # phpMyAdmin
   # ======================
-
   phpmyadmin:
     container_name: genai_phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
@@ -47,7 +48,7 @@ services:
   # ======================
   redis:
     container_name: genai_redis
-    image: redis
+    image: redis:7
     ports:
       - "6379:6379"
     networks:
@@ -68,14 +69,11 @@ services:
     restart: always
 
   # ======================
-  # Microservices run locally via Poetry/Makefile
-  # (Gateway and individual services are not containerized here yet.)
+  # Gateway (FastAPI)
   # ======================
   gateway:
     container_name: genai_gateway
-    build:
-      context: ../backend/app/gateway
-      dockerfile: Dockerfile
+    image: shettyanna/genai-gateway:latest
     ports:
       - "8000:8000"
     environment:
@@ -85,15 +83,18 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_started
+      chat_service:
+        condition: service_started
     networks:
       - genai_network
     restart: always
 
+  # ======================
+  # Chat Service (FastAPI)
+  # ======================
   chat_service:
     container_name: genai_chat_service
-    build:
-      context: ../backend/app/services/chat_service
-      dockerfile: Dockerfile
+    image: shettyanna/genai-chat-service:latest
     ports:
       - "8003:8003"
     environment:
@@ -109,16 +110,14 @@ services:
     restart: always
 
   # ======================
-  # Celery Worker (for long-running ingestion tasks)
+  # Celery Worker (Python)
   # ======================
   worker:
     container_name: genai_worker
-    build:
-      context: ../backend/worker
-      dockerfile: Dockerfile
+    image: shettyanna/genai-worker:latest
     environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://genai_redis:6379/0
+      CELERY_RESULT_BACKEND: redis://genai_redis:6379/1
       CHAT_SERVICE_URL: http://genai_chat_service:8003
     depends_on:
       redis:
@@ -128,35 +127,18 @@ services:
     networks:
       - genai_network
     restart: always
-    volumes:
-      - backend_data:/data
-
 
   # ======================
-  # Frontend (React + Vite)
+  # Frontend (Nginx)
   # ======================
   frontend:
-      container_name: genai-frontend
-      image: shettyanna/genai-frontend
-      ports:
-        - "5173:5173"
-      volumes:
-        - ../frontend/vite-react/src:/app/src
-        - ../frontend/vite-react/index.html:/app/index.html
-      working_dir: /app
-      command: npm run dev
-
-
-# ======================
-# Volumes
-# ======================
-volumes:
-  mysql_data:
-  redis_data:
-  qdrant_data:
-  backend_data:
-  frontend_node_modules:
-  celery_data:
+    container_name: genai_frontend
+    image: shettyanna/genai-frontend:latest
+    ports:
+      - "5173:80"
+    networks:
+      - genai_network
+    restart: always
 
 # ======================
 # Shared Network
