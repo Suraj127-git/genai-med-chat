@@ -54,17 +54,31 @@ jobs:
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
       # ====================================================================
+      # BACKEND - CHAT SERVICE Dependencies
+      # ====================================================================
+
+      - name: Export chat_service requirements (Poetry -> requirements.txt)
+        working-directory: backend/app/services/chat_service
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          # Ensure poetry.lock exists locally; this uses locked versions
+          poetry export -f requirements.txt --output requirements.txt --without-hashes --no-dev
+
+      # ====================================================================
       # BACKEND - CHAT SERVICE
       # ====================================================================
       - name: Build & push chat-service image
         uses: docker/build-push-action@v6
         with:
-          context: .                     
+          context: .                               
           file: ./backend/app/services/chat_service/Dockerfile
           push: true
           tags: |
             ${{ vars.DOCKER_USER }}/genai-chat-service:latest
             ${{ vars.DOCKER_USER }}/genai-chat-service:${{ github.sha }}
+          labels: |
+            com.centurylinklabs.watchtower.enable=true
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
       # ====================================================================
