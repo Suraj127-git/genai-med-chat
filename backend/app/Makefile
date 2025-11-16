@@ -1,23 +1,23 @@
 PYTHON=python3
 
-.PHONY: install run-gateway run-user run-product
+.PHONY: install run-gateway run-user run-product run-chat
 
 install:
-	@echo "Installing shared, gateway, user_service, product_service"
-	@(cd shared && poetry install)
-	@(cd gateway && poetry install)
-	@(cd services/user_service && poetry install)
-	@(cd services/product_service && poetry install)
-	@(cd services/chat_service && poetry install)
+	@echo "Syncing dependencies with uv for shared, gateway, user_service, product_service, chat_service"
+	uv sync --package shared
+	uv sync --package gateway
+	uv sync --package user_service
+	uv sync --package product_service
+	uv sync --package chat_service
 
 run-gateway:
-	@(cd gateway && poetry run uvicorn gateway.main:app --reload --port 8000)
+	uv run --package gateway uvicorn gateway.main:app --reload --port 8000
 
 run-user:
-	@(cd services/user_service && poetry run uvicorn user_service.main:app --reload --port 8001)
+	uv run --package user_service uvicorn user_service.main:app --reload --port 8001
 
 run-product:
-	@(cd services/product_service && poetry run uvicorn product_service.main:app --reload --port 8002)
+	uv run --package product_service uvicorn product_service.main:app --reload --port 8002
 
 run-chat:
-	@(cd services/chat_service && poetry run uvicorn chat_service.main:app --reload --port 8003)
+	uv run --package chat_service uvicorn chat_service.main:app --reload --port 8003
