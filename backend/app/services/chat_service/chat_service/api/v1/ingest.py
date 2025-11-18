@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException
+from fastapi.responses import JSONResponse
 
 from chat_service.services.ingest_service import IngestService
 
@@ -7,13 +8,9 @@ ingest_service = IngestService()
 
 
 @router.post("/upload")
-async def upload_document(file: UploadFile = File(...), user_id: int = Form(...), bg: BackgroundTasks | None = None):
+async def upload_document(file: UploadFile = File(...), user_id: int = Form(...), background_tasks: BackgroundTasks):
     if file.filename == "":
         raise HTTPException(status_code=400, detail="file required")
     saved_path = await ingest_service.save_upload(file, uploaded_by=user_id)
-    if bg:
-        bg.add_task(ingest_service.ingest_file, saved_path, user_id)
-        return {"status": "accepted", "filepath": saved_path}
-    else:
-        ingest_service.ingest_file(saved_path, user_id)
-        return {"status": "ingested", "filepath": saved_path}
+    background_tasks.add_task(ingest_service.ingest_file, saved_path, user_id)
+    return JSONResponse({"status": "accepted", "filepath": saved_path}, status_code=202)

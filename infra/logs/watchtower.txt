@@ -1,0 +1,43 @@
+2025-11-18T11:27:39.889675128Z time="2025-11-18T11:27:39Z" level=info msg="Watchtower 1.7.1"
+2025-11-18T11:27:39.889749938Z time="2025-11-18T11:27:39Z" level=info msg="Using no notifications"
+2025-11-18T11:27:39.889756131Z time="2025-11-18T11:27:39Z" level=info msg="Only checking containers using enable label"
+2025-11-18T11:27:39.889759763Z time="2025-11-18T11:27:39Z" level=info msg="Scheduling first run: 2025-11-18 11:28:09 +0000 UTC"
+2025-11-18T11:27:39.889763841Z time="2025-11-18T11:27:39Z" level=info msg="Note that the first check will be performed in 29 seconds"
+2025-11-18T11:28:18.565343990Z time="2025-11-18T11:28:18Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:28:47.377591408Z time="2025-11-18T11:28:47Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:29:16.475045980Z time="2025-11-18T11:29:16Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:29:47.007327123Z time="2025-11-18T11:29:47Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:30:17.262308498Z time="2025-11-18T11:30:17Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:30:46.985493265Z time="2025-11-18T11:30:46Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:31:17.901696079Z time="2025-11-18T11:31:17Z" level=info msg="Found new shettyanna/genai-frontend:latest image (c87dd0c99221)"
+2025-11-18T11:31:17.901756758Z time="2025-11-18T11:31:17Z" level=info msg="Stopping /genai_frontend (99b290a573e2) with SIGTERM"
+2025-11-18T11:31:28.960075578Z time="2025-11-18T11:31:28Z" level=info msg="Creating /genai_frontend"
+2025-11-18T11:31:29.661322775Z time="2025-11-18T11:31:29Z" level=info msg="Removing image 7bfbe9401fdd"
+2025-11-18T11:31:29.704553277Z time="2025-11-18T11:31:29Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=1 notify=no
+2025-11-18T11:31:47.916405298Z time="2025-11-18T11:31:47Z" level=info msg="Found new shettyanna/genai-gateway:latest image (c37c5257983f)"
+2025-11-18T11:31:47.916533167Z time="2025-11-18T11:31:47Z" level=info msg="Stopping /genai_gateway (7ccffb2dece1) with SIGTERM"
+2025-11-18T11:31:49.110161193Z time="2025-11-18T11:31:49Z" level=info msg="Creating /genai_gateway"
+2025-11-18T11:31:49.863847470Z time="2025-11-18T11:31:49Z" level=info msg="Removing image 19ab0d49ba18"
+2025-11-18T11:31:49.896546390Z time="2025-11-18T11:31:49Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=1 notify=no
+2025-11-18T11:32:19.539198349Z time="2025-11-18T11:32:19Z" level=info msg="Found new shettyanna/genai-chat-service:latest image (cc8ddaac9bfe)"
+2025-11-18T11:32:19.539288747Z time="2025-11-18T11:32:19Z" level=info msg="Stopping /genai_chat_service (da0d15e56634) with SIGTERM"
+2025-11-18T11:32:19.764404467Z time="2025-11-18T11:32:19Z" level=info msg="Creating /genai_chat_service"
+2025-11-18T11:32:20.812803006Z time="2025-11-18T11:32:20Z" level=info msg="Removing image 2ad6fd127be4"
+2025-11-18T11:32:20.851113586Z time="2025-11-18T11:32:20Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=1 notify=no
+2025-11-18T11:32:47.053579574Z time="2025-11-18T11:32:47Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:33:15.303372219Z time="2025-11-18T11:33:15Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:33:45.165465246Z time="2025-11-18T11:33:45Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:34:15.499260217Z time="2025-11-18T11:34:15Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:34:45.139062430Z time="2025-11-18T11:34:45Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:35:15.043063230Z time="2025-11-18T11:35:15Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:35:45.019048433Z time="2025-11-18T11:35:45Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:36:15.480952014Z time="2025-11-18T11:36:15Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:36:44.253187577Z time="2025-11-18T11:36:44Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:37:26.262514828Z time="2025-11-18T11:37:26Z" level=info msg="Found new shettyanna/genai-worker:latest image (66a8f4c4cad0)"
+2025-11-18T11:37:26.262567754Z time="2025-11-18T11:37:26Z" level=info msg="Stopping /genai_worker (333f1ce956d2) with SIGTERM"
+2025-11-18T11:37:28.726935757Z time="2025-11-18T11:37:28Z" level=info msg="Creating /genai_worker"
+2025-11-18T11:37:29.658067047Z time="2025-11-18T11:37:29Z" level=info msg="Removing image 38a425d9b76c"
+2025-11-18T11:37:29.951894617Z time="2025-11-18T11:37:29Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=1 notify=no
+2025-11-18T11:37:45.157840280Z time="2025-11-18T11:37:45Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no
+2025-11-18T11:38:16.794290012Z time="2025-11-18T11:38:16Z" level=info msg="Session done" Failed=0 Scanned=4 Updated=0 notify=no
+2025-11-18T11:38:44.737170213Z time="2025-11-18T11:38:44Z" level=info msg="Session done" Failed=0 Scanned=3 Updated=0 notify=no

@@ -12,7 +12,7 @@ def test_ingest_upload_ok(client, tmp_path):
             files={"file": ("doc.txt", f, "text/plain")},
             data={"user_id": 1},
         )
-    assert resp.status_code == 200
+    assert resp.status_code in (200, 202)
     j = resp.json()
     assert j.get("status") in ("ingested", "accepted")
     assert "filepath" in j
