@@ -54,19 +54,6 @@ jobs:
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
       # ====================================================================
-      # BACKEND - CHAT SERVICE Dependencies
-      # ====================================================================
-
-      - name: Export chat_service requirements
-        working-directory: backend/app/services/chat_service
-        run: |
-          pip install poetry poetry-plugin-export
-          poetry export -f requirements.txt --without-hashes -o requirements.txt
-
-          # Fix local path → Docker path
-          sed -i "s|file://.*backend/app/shared|file:///app/shared|" requirements.txt
-
-      # ====================================================================
       # BACKEND - CHAT SERVICE
       # ====================================================================
       - name: Build & push chat-service image
@@ -78,6 +65,22 @@ jobs:
           tags: |
             ${{ vars.DOCKER_USER }}/genai-chat-service:latest
             ${{ vars.DOCKER_USER }}/genai-chat-service:${{ github.sha }}
+          labels: |
+            com.centurylinklabs.watchtower.enable=true
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # ====================================================================
+      # BACKEND - AI SERVICE (new separated AI microservice)
+      # ====================================================================
+      - name: Build & push ai-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./backend/app/services/ai_service/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USER }}/genai-ai-service:latest
+            ${{ vars.DOCKER_USER }}/genai-ai-service:${{ github.sha }}
           labels: |
             com.centurylinklabs.watchtower.enable=true
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}

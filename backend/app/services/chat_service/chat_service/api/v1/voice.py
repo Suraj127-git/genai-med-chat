@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile
-import tempfile
+import httpx
+from shared.config import settings
 
 router = APIRouter()
 
@@ -14,13 +15,11 @@ def _get_asr_pipeline():
 
 @router.post("/voice")
 async def transcribe_audio(file: UploadFile):
-    asr = _get_asr_pipeline()
-    if not asr:
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            files = {"file": (file.filename or "voice.webm", await file.read())}
+            resp = await client.post(settings.AI_SERVICE_URL.rstrip("/") + "/api/v1/voice", files=files)
+            resp.raise_for_status()
+            return resp.json()
+    except Exception:
         return {"text": "[ASR not available]"}
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
-        tmp.write(await file.read())
-        tmp_path = tmp.name
-
-    text = asr(tmp_path)["text"]
-    return {"text": text}

@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict, Any
 
-from shared.model_adapter import ModelAdapter
+import httpx
 from shared.mysql_repo import MySQLRepo
 from shared.config import settings
 
@@ -19,7 +19,6 @@ except Exception:
 class ChatService:
     def __init__(self):
         self.repo = MySQLRepo()
-        self.model = ModelAdapter(backend=settings.MODEL_BACKEND)
         self._init_rag()
 
     def _init_rag(self):
@@ -74,8 +73,10 @@ class ChatService:
 
         answer = None
         try:
-            loop = asyncio.get_event_loop()
-            answer = await loop.run_in_executor(None, lambda: self.model.generate(text))
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(settings.AI_SERVICE_URL.rstrip("/") + "/api/v1/generate", json={"text": text})
+                resp.raise_for_status()
+                answer = resp.json().get("text")
         except Exception:
             answer = "Sorry — model generation failed."
 

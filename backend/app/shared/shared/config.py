@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama2")
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+    AI_SERVICE_URL: str = os.getenv("AI_SERVICE_URL", "http://localhost:8004")
 
     # Uploads
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "/app/data/uploads")

@@ -1,4 +1,6 @@
 from fastapi import APIRouter, UploadFile
+import httpx
+from shared.config import settings
 
 router = APIRouter()
 
@@ -15,15 +17,11 @@ def _get_trocr():
 
 @router.post("/ocr")
 async def extract_text(file: UploadFile):
-    processor, model = _get_trocr()
-    if not processor or not model:
-        return {"text": "[OCR not available]"}
     try:
-        from PIL import Image
-        image = Image.open(file.file).convert("RGB")
-        pixel_values = processor(images=image, return_tensors="pt").pixel_values
-        generated_ids = model.generate(pixel_values)
-        text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        return {"text": text}
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            files = {"file": (file.filename or "image", await file.read())}
+            resp = await client.post(settings.AI_SERVICE_URL.rstrip("/") + "/api/v1/ocr", files=files)
+            resp.raise_for_status()
+            return resp.json()
     except Exception:
         return {"text": "[OCR failed]"}
