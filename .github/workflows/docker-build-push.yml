@@ -98,6 +98,3 @@ jobs:
             ${{ vars.DOCKER_USER }}/genai-worker:latest
             ${{ vars.DOCKER_USER }}/genai-worker:${{ github.sha }}
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-
-
