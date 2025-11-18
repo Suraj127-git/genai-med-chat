@@ -102,11 +102,25 @@ services:
     environment:
       MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
       QDRANT_URL: http://genai_qdrant:6333
+      AI_SERVICE_URL: http://genai_ai_service:8004
     depends_on:
       mysql:
         condition: service_healthy
       qdrant:
         condition: service_started
+      ai_service:
+        condition: service_started
+    networks:
+      - genai_network
+    restart: always
+
+  ai_service:
+    container_name: genai_ai_service
+    image: shettyanna/genai-ai-service:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8004:8004"
     networks:
       - genai_network
     restart: always
