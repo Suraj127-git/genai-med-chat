@@ -9,6 +9,7 @@ COPY backend/app/services/ai_service/pyproject.toml /app/services/ai_service/pyp
 COPY backend/app/shared/shared /app/shared/shared
 COPY backend/app/services/ai_service/ai_service /app/services/ai_service/ai_service
 RUN uv sync --package ai_service --no-dev
+RUN uv pip install "python-multipart>=0.0.9" && rm -rf /root/.cache || true
 RUN rm -rf /app/.venv/lib/python*/site-packages/nvidia /app/.venv/lib/python*/site-packages/cudnn* || true
 ENV PYTHONPATH=/app
 EXPOSE 8004

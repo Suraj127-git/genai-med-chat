@@ -52,14 +52,11 @@ class IngestService:
             docs = splitter.split_text(text)
             try:
                 vectors = []
-                async def _embed_all():
-                    async with httpx.AsyncClient(timeout=30.0) as client:
-                        for d in docs:
-                            r = await client.post(settings.AI_SERVICE_URL.rstrip("/") + "/api/v1/embed", json={"text": d})
-                            v = r.json().get("vector", [])
-                            vectors.append(v)
-                import asyncio
-                asyncio.run(_embed_all())
+                with httpx.Client(timeout=30.0) as client:
+                    for d in docs:
+                        r = client.post(settings.AI_SERVICE_URL.rstrip("/") + "/api/v1/embed", json={"text": d})
+                        v = r.json().get("vector", [])
+                        vectors.append(v)
                 self.qdrant.upsert(points=[{"id": uuid4().hex, "vector": v, "payload": {"source": filepath}} for v in vectors])
             except Exception:
                 pass

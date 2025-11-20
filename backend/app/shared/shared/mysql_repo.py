@@ -38,8 +38,11 @@ engine = create_engine(settings.MYSQL_DSN, echo=False, future=True)
 
 class MySQLRepo:
     def __init__(self):
-        # Create tables if not exist (simple demo)
-        metadata.create_all(engine)
+        # Create tables if not exist (simple demo); tolerate startup race with DB
+        try:
+            metadata.create_all(engine)
+        except Exception:
+            pass
 
     def create_user(self, username: str, email: str, password_hash: str, role: str = "user"):
         with engine.begin() as conn:
