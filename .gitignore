@@ -82,3 +82,7 @@ infra/*.env
 
 # General caches
 .cache/
+
+# Container logs
+infra/*.log
+infra/logs/
