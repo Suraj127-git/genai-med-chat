@@ -194,3 +194,4 @@ volumes:
 networks:
   genai_network:
     driver: bridge
+
