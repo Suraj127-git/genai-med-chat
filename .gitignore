@@ -79,6 +79,7 @@ celery*.log
 # Docker Compose local overrides and env files
 infra/docker-compose.override.yml
 infra/*.env
+!infra/.env
 
 # General caches
 .cache/
@@ -86,3 +87,6 @@ infra/*.env
 # Container logs
 infra/*.log
 infra/logs/
+infra/logs/*.log
+infra/.env
+infra/.env.example

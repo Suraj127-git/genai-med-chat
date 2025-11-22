@@ -17,7 +17,7 @@ services:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +73,7 @@ services:
   # ======================
   gateway:
     container_name: genai_gateway
-    image: shettyanna/genai-gateway:latest
+    image: shettyanna/genai-gateway:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
@@ -94,7 +94,7 @@ services:
   # ======================
   chat_service:
     container_name: genai_chat_service
-    image: shettyanna/genai-chat-service:latest
+    image: shettyanna/genai-chat-service:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
@@ -116,7 +116,7 @@ services:
 
   ai_service:
     container_name: genai_ai_service
-    image: shettyanna/genai-ai-service:latest
+    image: shettyanna/genai-ai-service:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
@@ -130,7 +130,7 @@ services:
   # ======================
   worker:
     container_name: genai_worker
-    image: shettyanna/genai-worker:latest
+    image: shettyanna/genai-worker:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     environment:
@@ -153,7 +153,7 @@ services:
   # ======================
   frontend:
     container_name: genai_frontend
-    image: shettyanna/genai-frontend:latest
+    image: shettyanna/genai-frontend:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
@@ -172,10 +172,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: >
-      --interval 30
-      --cleanup
-      --label-enable
-      --revive-stopped
+      --interval 30 --cleanup --label-enable --revive-stopped
     networks:
       - genai_network
 
@@ -188,10 +185,9 @@ volumes:
   qdrant_data:
   backend_data:
 
-# ======================
-# Shared Network
-# ======================
+    # ======================
+    # Shared Network
+    # ======================
 networks:
   genai_network:
     driver: bridge
-
