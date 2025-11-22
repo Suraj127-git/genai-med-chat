@@ -74,9 +74,6 @@ services:
   user_service:
     container_name: genai_user_service
     image: shettyanna/genai-user-service:${VERSION}
-    build:
-      context: ..
-      dockerfile: ./backend/app/services/user_service/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
@@ -96,15 +93,14 @@ services:
   gateway:
     container_name: genai_gateway
     image: shettyanna/genai-gateway:${VERSION}
-    build:
-      context: ..
-      dockerfile: ./backend/app/gateway/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8087:8087"
     environment:
       CHAT_SERVICE_URL: http://genai_chat_service:8003
+      USER_SERVICE_URL: http://genai_user_service:8086
+      PRODUCT_SERVICE_URL: http://genai_product_service:8082
     depends_on:
       mysql:
         condition: service_healthy

@@ -1,10 +1,15 @@
 from fastapi import FastAPI, Request, Response
+import os
 import httpx
 from shared.logger import get_logger
 
 
 app = FastAPI(title="Gateway")
 logger = get_logger(__name__)
+
+CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://genai_chat_service:8003").rstrip("/")
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://genai_user_service:8086").rstrip("/")
+PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://genai_product_service:8082").rstrip("/")
 
 
 async def proxy_request(target_base: str, path: str, request: Request) -> Response:
@@ -25,19 +30,19 @@ async def proxy_request(target_base: str, path: str, request: Request) -> Respon
 @app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_auth(path: str, request: Request):
     logger.info(f"Proxying to user_service/auth: {path}")
-    return await proxy_request("http://localhost:8001/auth", path, request)
+    return await proxy_request(f"{USER_SERVICE_URL}/auth", path, request)
 
 
 @app.api_route("/users/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_users(path: str, request: Request):
     logger.info(f"Proxying to user_service: {path}")
-    return await proxy_request("http://localhost:8001", path, request)
+    return await proxy_request(USER_SERVICE_URL, path, request)
 
 
 @app.api_route("/products/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_products(path: str, request: Request):
     logger.info(f"Proxying to product_service: {path}")
-    return await proxy_request("http://localhost:8002", path, request)
+    return await proxy_request(PRODUCT_SERVICE_URL, path, request)
 
 
 @app.get("/ping")
@@ -48,18 +53,16 @@ async def ping():
 @app.api_route("/chat/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_chat(path: str, request: Request):
     logger.info(f"Proxying to chat_service: {path}")
-    # Chat service mounts routers under /api/v1/chat
-    return await proxy_request("http://localhost:8003/api/v1/chat", path, request)
+    return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/chat", path, request)
 
 
 @app.api_route("/api/v1/chat/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_chat_api(path: str, request: Request):
     logger.info(f"Proxying to chat_service /api/v1/chat: {path}")
-    # Direct mapping for frontend calls to /api/v1/chat/*
-    return await proxy_request("http://localhost:8003/api/v1/chat", path, request)
+    return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/chat", path, request)
 
 
 @app.api_route("/api/v1/graph/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_graph(path: str, request: Request):
     logger.info(f"Proxying to chat_service /api/v1/graph: {path}")
-    return await proxy_request("http://localhost:8003/api/v1", f"graph/{path}", request)
+    return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/graph", path, request)
