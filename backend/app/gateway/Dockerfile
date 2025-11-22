@@ -1,4 +1,5 @@
-FROM python:3.12-slim
+# Builder stage
+FROM python:3.12-slim AS builder
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -8,7 +9,16 @@ COPY backend/app/shared/pyproject.toml /app/shared/pyproject.toml
 COPY backend/app/gateway/pyproject.toml /app/gateway/pyproject.toml
 COPY backend/app/shared/shared /app/shared/shared
 COPY backend/app/gateway/gateway /app/gateway/gateway
-RUN uv sync --package gateway --no-dev
-ENV PYTHONPATH=/app
+# Use cache mount for uv
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --package gateway --no-dev
+
+# Runtime stage
+FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/app/.venv/bin:$PATH" PYTHONPATH=/app
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/gateway /app/gateway
+COPY --from=builder /app/shared /app/shared
 EXPOSE 8000
-CMD ["uv", "run", "--package", "gateway", "uvicorn", "gateway.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "gateway.main:app", "--host", "0.0.0.0", "--port", "8000"]
