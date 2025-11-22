@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   # ======================
   # MySQL Database
@@ -20,7 +22,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - genai_network
+      - gen-ai-med-chat
 
   # ======================
   # phpMyAdmin
@@ -39,7 +41,7 @@ services:
     ports:
       - "8085:80"
     networks:
-      - genai_network
+      - gen-ai-med-chat
 
   # ======================
   # Redis
@@ -50,7 +52,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -63,7 +65,7 @@ services:
       - "6333:6333"
       - "6334:6334"
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -85,7 +87,7 @@ services:
       mysql:
         condition: service_healthy
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -109,7 +111,7 @@ services:
       qdrant:
         condition: service_started
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -134,7 +136,7 @@ services:
       ai_service:
         condition: service_started
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   ai_service:
@@ -145,7 +147,7 @@ services:
     ports:
       - "8089:8089"
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -166,7 +168,7 @@ services:
       chat_service:
         condition: service_started
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
     volumes:
       - backend_data:/data
@@ -176,13 +178,13 @@ services:
   # ======================
   frontend:
     container_name: genai_frontend
-    image: shettyanna/genai-frontend:${VERSION}
+    image: shettyanna/genai-frontend:latest
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "5173:80"
     networks:
-      - genai_network
+      - gen-ai-med-chat
     restart: always
 
   # ======================
@@ -197,7 +199,7 @@ services:
     command: >
       --interval 30 --cleanup --label-enable --revive-stopped
     networks:
-      - genai_network
+      - gen-ai-med-chat
 
 # ======================
 # Volumes
@@ -208,9 +210,9 @@ volumes:
   qdrant_data:
   backend_data:
 
-    # ======================
-    # Shared Network
-    # ======================
+# ======================
+# Shared Network
+# ======================
 networks:
-  genai_network:
+  gen-ai-med-chat:
     driver: bridge

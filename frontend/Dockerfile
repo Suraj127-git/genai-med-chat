@@ -42,7 +42,8 @@ COPY --from=deps /app/node_modules /app/node_modules
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
-RUN npm run build
+# Build only the app workspace to ensure package-local PostCSS/Tailwind config is used
+RUN npm --workspace packages/app run build
 
 # ------------------------------------------------------------
 # Production stage
