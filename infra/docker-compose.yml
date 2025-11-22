@@ -37,7 +37,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: rootpass
     ports:
-      - "8081:80"
+      - "8085:80"
     networks:
       - genai_network
 
@@ -78,7 +78,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8001:8001"
+      - "8086:8086"
     environment:
       MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
     depends_on:
@@ -100,7 +100,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8000:8000"
+      - "8087:8087"
     environment:
       CHAT_SERVICE_URL: http://genai_chat_service:8003
     depends_on:
@@ -121,7 +121,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8003:8003"
+      - "8088:8088"
     environment:
       MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
       QDRANT_URL: http://genai_qdrant:6333
@@ -143,7 +143,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8004:8004"
+      - "8089:8089"
     networks:
       - genai_network
     restart: always
@@ -180,7 +180,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "5173:5173"
+      - "5173:80"
     networks:
       - genai_network
     restart: always
