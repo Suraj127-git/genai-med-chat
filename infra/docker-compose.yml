@@ -67,11 +67,36 @@ services:
     restart: always
 
   # ======================
+  # Backend - User Service
+  # ======================
+  user_service:
+    container_name: genai_user_service
+    image: shettyanna/genai-user-service:${VERSION}
+    build:
+      context: ..
+      dockerfile: ./backend/app/services/user_service/Dockerfile
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8001:8001"
+    environment:
+      MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - genai_network
+    restart: always
+
+  # ======================
   # Backend - Gateway
   # ======================
   gateway:
     container_name: genai_gateway
     image: shettyanna/genai-gateway:${VERSION}
+    build:
+      context: ..
+      dockerfile: ./backend/app/gateway/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:

@@ -22,6 +22,12 @@ async def proxy_request(target_base: str, path: str, request: Request) -> Respon
     return Response(content=resp.content, status_code=resp.status_code, media_type=media_type)
 
 
+@app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def proxy_auth(path: str, request: Request):
+    logger.info(f"Proxying to user_service/auth: {path}")
+    return await proxy_request("http://localhost:8001/auth", path, request)
+
+
 @app.api_route("/users/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_users(path: str, request: Request):
     logger.info(f"Proxying to user_service: {path}")
@@ -44,3 +50,16 @@ async def proxy_chat(path: str, request: Request):
     logger.info(f"Proxying to chat_service: {path}")
     # Chat service mounts routers under /api/v1/chat
     return await proxy_request("http://localhost:8003/api/v1/chat", path, request)
+
+
+@app.api_route("/api/v1/chat/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def proxy_chat_api(path: str, request: Request):
+    logger.info(f"Proxying to chat_service /api/v1/chat: {path}")
+    # Direct mapping for frontend calls to /api/v1/chat/*
+    return await proxy_request("http://localhost:8003/api/v1/chat", path, request)
+
+
+@app.api_route("/api/v1/graph/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def proxy_graph(path: str, request: Request):
+    logger.info(f"Proxying to chat_service /api/v1/graph: {path}")
+    return await proxy_request("http://localhost:8003/api/v1", f"graph/{path}", request)
