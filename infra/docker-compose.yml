@@ -79,10 +79,11 @@ services:
     ports:
       - "8086:8086"
     environment:
-      MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
+      MONGO_URI: mongodb://genai_mongo:27017
+      MONGO_DB: genai_med
     depends_on:
-      mysql:
-        condition: service_healthy
+      mongo:
+        condition: service_started
     networks:
       - gen-ai-med-chat
     restart: always
@@ -121,12 +122,13 @@ services:
     ports:
       - "8088:8088"
     environment:
-      MYSQL_DSN: mysql+pymysql://genai:genai@genai_mysql:3306/genai_med
+      MONGO_URI: mongodb://genai_mongo:27017
+      MONGO_DB: genai_med
       QDRANT_URL: http://genai_qdrant:6333
       AI_SERVICE_URL: http://genai_ai_service:8004
     depends_on:
-      mysql:
-        condition: service_healthy
+      mongo:
+        condition: service_started
       qdrant:
         condition: service_started
       ai_service:
@@ -142,6 +144,9 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8089:8089"
+    environment:
+      AI_AGENT_BASE_URL: ${AI_AGENT_BASE_URL:-http://localhost:9000}
+      AI_AGENT_API_KEY: ${AI_AGENT_API_KEY:-}
     networks:
       - gen-ai-med-chat
     restart: always
@@ -212,3 +217,14 @@ volumes:
 networks:
   gen-ai-med-chat:
     driver: bridge
+  # ======================
+  # MongoDB
+  # ======================
+  mongo:
+    container_name: genai_mongo
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    networks:
+      - gen-ai-med-chat
+    restart: always

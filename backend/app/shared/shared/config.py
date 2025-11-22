@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     MYSQL_DB: str = os.getenv("MYSQL_DB", "genai_med")
     MYSQL_DSN: str = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}?charset=utf8mb4"
 
+    # MongoDB
+    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://genai_mongo:27017")
+    MONGO_DB: str = os.getenv("MONGO_DB", "genai_med")
+
     # Qdrant
     QDRANT_URL: str = os.getenv("QDRANT_URL", "http://localhost:6333")
     QDRANT_COLLECTION: str = os.getenv("QDRANT_COLLECTION", "docs")
@@ -24,6 +28,8 @@ class Settings(BaseSettings):
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama2")
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
     AI_SERVICE_URL: str = os.getenv("AI_SERVICE_URL", "http://localhost:8004")
+    AI_AGENT_BASE_URL: str = os.getenv("AI_AGENT_BASE_URL", "http://localhost:9000")
+    AI_AGENT_API_KEY: str = os.getenv("AI_AGENT_API_KEY", "")
 
     # Uploads
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "/app/data/uploads")

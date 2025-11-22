@@ -2,8 +2,9 @@ import asyncio
 from typing import Dict, Any
 
 import httpx
-from shared.mysql_repo import MySQLRepo
+from shared.mongo_repo import MongoRepo
 from shared.config import settings
+from shared.tracing import tracer
 
 # Optional langchain imports (if installed)
 try:
@@ -18,7 +19,7 @@ except Exception:
 
 class ChatService:
     def __init__(self):
-        self.repo = MySQLRepo()
+        self.repo = MongoRepo()
         self._init_rag()
 
     def _init_rag(self):
@@ -36,6 +37,7 @@ class ChatService:
             self.rqa = None
 
     async def handle_query(self, user_id: int, text: str, modalities: Dict | None = None) -> Dict[str, Any]:
+        t = tracer.trace("chat_service.handle_query")
         modalities = modalities or {}
         sources: list[Any] = []
 
@@ -101,4 +103,9 @@ class ChatService:
         except Exception:
             pass
 
+        try:
+            t.log({"user_id": user_id, "text": text, "answer": answer, "conv_id": conv_id, "sources": sources})
+            t.end()
+        except Exception:
+            pass
         return {"answer": answer, "sources": sources, "conv_id": conv_id}

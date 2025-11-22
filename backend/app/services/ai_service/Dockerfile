@@ -9,10 +9,8 @@ COPY backend/app/shared/pyproject.toml /app/shared/pyproject.toml
 COPY backend/app/services/ai_service/pyproject.toml /app/services/ai_service/pyproject.toml
 COPY backend/app/shared/shared /app/shared/shared
 COPY backend/app/services/ai_service/ai_service /app/services/ai_service/ai_service
-# Install dependencies without cache to save space on CI runners
-ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cpu
-RUN uv pip install --system --no-cache --index-url $TORCH_INDEX_URL --only-binary=:all: torch==2.4.1+cpu && \
-    uv sync --package ai_service --no-dev --no-cache && \
+# Install minimal dependencies without cache
+RUN uv sync --package ai_service --no-dev --no-cache && \
     uv pip install --no-cache "python-multipart>=0.0.9" && \
     rm -rf /root/.cache
 

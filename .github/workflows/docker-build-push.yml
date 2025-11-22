@@ -26,11 +26,8 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Extracted version: $VERSION"
 
-      - name: Set up Docker Buildx (Docker Cloud)
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver: cloud
-          endpoint: "shettyanna/gen-ai-testing" 
 
       # ====================================================================
       # FRONTEND - REACT APP

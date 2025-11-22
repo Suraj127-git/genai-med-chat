@@ -18,11 +18,11 @@ class UserLogin(BaseModel):
 
 
 class UserResponse(UserBase):
-    id: int
-    created_at: datetime
+    id: str
+    created_at: datetime | None
 
     class Config:
-        from_attributes = True
+        arbitrary_types_allowed = True
 
 
 class Token(BaseModel):
@@ -31,4 +31,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: Optional[int] = None
+    user_id: Optional[str] = None

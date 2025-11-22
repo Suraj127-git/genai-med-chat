@@ -1,80 +1,75 @@
 from fastapi import FastAPI, UploadFile
-import tempfile
+import httpx
 from shared.config import settings
+from shared.tracing import tracer
 
 app = FastAPI(title="AI Service")
 
-def _get_text_generation():
-    try:
-        from transformers import pipeline
-        return pipeline("text-generation", model=settings.HF_MODEL)
-    except Exception:
-        return None
+BASE = settings.AI_AGENT_BASE_URL.rstrip("/")
+API_KEY = settings.AI_AGENT_API_KEY
 
-def _get_trocr():
-    try:
-        from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-        processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
-        model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
-        return processor, model
-    except Exception:
-        return None, None
-
-def _get_asr():
-    try:
-        from transformers import pipeline
-        return pipeline("automatic-speech-recognition", model="openai/whisper-small")
-    except Exception:
-        return None
-
-def _get_embedder():
-    try:
-        from sentence_transformers import SentenceTransformer
-        return SentenceTransformer(settings.EMBEDDING_MODEL)
-    except Exception:
-        return None
+def _headers():
+    h = {"accept": "application/json"}
+    if API_KEY:
+        h["authorization"] = f"Bearer {API_KEY}"
+    return h
 
 @app.post("/api/v1/generate")
 async def generate(payload: dict):
-    text = payload.get("text", "")
-    gen = _get_text_generation()
-    if not gen:
-        return {"text": "[generation not available]"}
-    out = gen(text, max_length=256, do_sample=True)
-    t = out[0]["generated_text"] if isinstance(out, list) and out else str(out)
-    return {"text": t}
+    t = tracer.trace("ai_service.generate")
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        r = await client.post(f"{BASE}/v1/generate", json=payload, headers=_headers())
+        r.raise_for_status()
+        data = r.json()
+        try:
+            t.log({"input": payload, "output": data})
+            t.end()
+        except Exception:
+            pass
+        return data
 
 @app.post("/api/v1/ocr")
 async def ocr(file: UploadFile):
-    processor, model = _get_trocr()
-    if not processor or not model:
-        return {"text": "[OCR not available]"}
-    try:
-        from PIL import Image
-        image = Image.open(file.file).convert("RGB")
-        pixel_values = processor(images=image, return_tensors="pt").pixel_values
-        generated_ids = model.generate(pixel_values)
-        text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        return {"text": text}
-    except Exception:
-        return {"text": "[OCR failed]"}
+    t = tracer.trace("ai_service.ocr")
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        body = await file.read()
+        files = {"file": (file.filename or "image", body)}
+        r = await client.post(f"{BASE}/v1/ocr", files=files, headers=_headers())
+        r.raise_for_status()
+        data = r.json()
+        try:
+            t.log({"filename": file.filename, "size": len(body), "output": data})
+            t.end()
+        except Exception:
+            pass
+        return data
 
 @app.post("/api/v1/voice")
 async def voice(file: UploadFile):
-    asr = _get_asr()
-    if not asr:
-        return {"text": "[ASR not available]"}
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
-        tmp.write(await file.read())
-        tmp_path = tmp.name
-    text = asr(tmp_path)["text"]
-    return {"text": text}
+    t = tracer.trace("ai_service.voice")
+    async with httpx.AsyncClient(timeout=180.0) as client:
+        body = await file.read()
+        files = {"file": (file.filename or "audio.webm", body)}
+        r = await client.post(f"{BASE}/v1/voice", files=files, headers=_headers())
+        r.raise_for_status()
+        data = r.json()
+        try:
+            t.log({"filename": file.filename, "size": len(body), "output": data})
+            t.end()
+        except Exception:
+            pass
+        return data
 
 @app.post("/api/v1/embed")
 async def embed(payload: dict):
-    text = payload.get("text", "")
-    embedder = _get_embedder()
-    if not embedder:
-        return {"vector": []}
-    vec = embedder.encode(text)
-    return {"vector": list(map(float, vec))}
+    t = tracer.trace("ai_service.embed")
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        r = await client.post(f"{BASE}/v1/embed", json=payload, headers=_headers())
+        r.raise_for_status()
+        data = r.json()
+        try:
+            t.log({"input": payload, "output": data})
+            t.end()
+        except Exception:
+            pass
+        return data
