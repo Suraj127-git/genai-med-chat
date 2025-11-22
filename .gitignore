@@ -88,5 +88,3 @@ infra/*.env
 infra/*.log
 infra/logs/
 infra/logs/*.log
-infra/.env
-infra/.env.example
