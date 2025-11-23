@@ -68,6 +68,15 @@ services:
       - gen-ai-med-chat
     restart: always
 
+  mongo:
+    container_name: genai_mongo
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
   # ======================
   # Backend - User Service
   # ======================
@@ -82,8 +91,7 @@ services:
       MONGO_URI: mongodb://genai_mongo:27017
       MONGO_DB: genai_med
     depends_on:
-      mongo:
-        condition: service_started
+      - mongo
     networks:
       - gen-ai-med-chat
     restart: always
@@ -127,12 +135,9 @@ services:
       QDRANT_URL: http://genai_qdrant:6333
       AI_SERVICE_URL: http://genai_ai_service:8004
     depends_on:
-      mongo:
-        condition: service_started
-      qdrant:
-        condition: service_started
-      ai_service:
-        condition: service_started
+      - mongo
+      - qdrant
+      - ai_service
     networks:
       - gen-ai-med-chat
     restart: always
@@ -217,14 +222,3 @@ volumes:
 networks:
   gen-ai-med-chat:
     driver: bridge
-  # ======================
-  # MongoDB
-  # ======================
-  mongo:
-    container_name: genai_mongo
-    image: mongo:7
-    ports:
-      - "27017:27017"
-    networks:
-      - gen-ai-med-chat
-    restart: always
