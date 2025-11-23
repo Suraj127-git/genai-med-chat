@@ -1,47 +1,6 @@
 version: "3.9"
 
 services:
-  # ======================
-  # MySQL Database
-  # ======================
-  mysql:
-    container_name: genai_mysql
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: genai_med
-      MYSQL_USER: genai
-      MYSQL_PASSWORD: genai
-    ports:
-      - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - gen-ai-med-chat
-
-  # ======================
-  # phpMyAdmin
-  # ======================
-  phpmyadmin:
-    container_name: genai_phpmyadmin
-    image: phpmyadmin/phpmyadmin:latest
-    restart: always
-    depends_on:
-      - mysql
-    environment:
-      PMA_HOST: genai_mysql
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: rootpass
-    ports:
-      - "8085:80"
-    networks:
-      - gen-ai-med-chat
 
   # ======================
   # Redis
@@ -67,6 +26,8 @@ services:
     networks:
       - gen-ai-med-chat
     restart: always
+    volumes:
+      - qdrant_data:/qdrant/storage
 
   mongo:
     container_name: genai_mongo
@@ -76,6 +37,11 @@ services:
     networks:
       - gen-ai-med-chat
     restart: always
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # ======================
   # Backend - User Service
@@ -91,7 +57,8 @@ services:
       MONGO_URI: mongodb://genai_mongo:27017
       MONGO_DB: genai_med
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - gen-ai-med-chat
     restart: always
@@ -111,8 +78,6 @@ services:
       USER_SERVICE_URL: http://genai_user_service:8086
       PRODUCT_SERVICE_URL: http://genai_product_service:8082
     depends_on:
-      mysql:
-        condition: service_healthy
       qdrant:
         condition: service_started
     networks:
@@ -135,9 +100,12 @@ services:
       QDRANT_URL: http://genai_qdrant:6333
       AI_SERVICE_URL: http://genai_ai_service:8004
     depends_on:
-      - mongo
-      - qdrant
-      - ai_service
+      mongo:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      ai_service:
+        condition: service_started
     networks:
       - gen-ai-med-chat
     restart: always
@@ -211,7 +179,6 @@ services:
 # Volumes
 # ======================
 volumes:
-  mysql_data:
   redis_data:
   qdrant_data:
   backend_data:
