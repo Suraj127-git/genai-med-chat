@@ -31,10 +31,10 @@ def get_logger(name: str) -> logging.Logger:
         handler = logging.StreamHandler()
         service = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME") or name
         formatter = logging.Formatter(
-            fmt='{"timestamp":"%(asctime)s","level":"%(levelname)s","service":"%s","logger":"%(name)s","message":"%(message)s","trace_id":"%(otelTraceID)s","span_id":"%(otelSpanID)s"}' % service,
+            fmt='{"timestamp":"%(asctime)s","level":"%(levelname)s","service":"%(service)s","logger":"%(name)s","message":"%(message)s","trace_id":"%(otelTraceID)s","span_id":"%(otelSpanID)s"}',
             datefmt="%Y-%m-%dT%H:%M:%S",
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
-    return logger
+    return logging.LoggerAdapter(logger, {"service": os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME") or name})
