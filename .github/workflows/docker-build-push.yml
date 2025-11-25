@@ -60,6 +60,21 @@ jobs:
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
 
       # ====================================================================
+      # BACKEND - USER SERVICE
+      # ====================================================================
+      - name: Build & push user-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./backend/app/services/user_service/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USER }}/genai-user-service:latest
+            ${{ vars.DOCKER_USER }}/genai-user-service:${{ env.VERSION }}
+            ${{ vars.DOCKER_USER }}/genai-user-service:${{ github.sha }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # ====================================================================
       # BACKEND - CHAT SERVICE
       # ====================================================================
       - name: Build & push chat-service image

@@ -8,7 +8,6 @@ dependencies = [
   "pymongo>=4.6.0",
   "requests>=2.32.0",
 ]
-]
 
 [build-system]
 requires = ["hatchling"]
