@@ -8,7 +8,13 @@ dependencies = [
   "uvicorn>=0.30.0",
   "httpx>=0.27.0",
   "python-multipart>=0.0.9",
-  "shared"
+  "shared",
+  "opentelemetry-api>=1.25.0",
+  "opentelemetry-sdk>=1.25.0",
+  "opentelemetry-exporter-otlp>=1.25.0",
+  "opentelemetry-instrumentation-fastapi>=0.46b0",
+  "opentelemetry-instrumentation-requests>=0.46b0",
+  "opentelemetry-instrumentation-logging>=0.46b0"
 ]
 
 [build-system]

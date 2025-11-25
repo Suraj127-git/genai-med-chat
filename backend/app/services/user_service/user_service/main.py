@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from shared.logger import get_logger
+from shared.logger import get_logger, setup_observability
 from shared.mongo import get_db
 from shared.config import settings
 
@@ -8,6 +8,7 @@ from user_service.api import auth
 from datetime import datetime
 
 app = FastAPI(title="User Service")
+setup_observability("user_service", app)
 logger = get_logger(__name__)
 db = get_db()
 

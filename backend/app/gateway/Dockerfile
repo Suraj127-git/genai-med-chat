@@ -7,7 +7,7 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY backend/app/pyproject.toml /app/pyproject.toml
 COPY backend/app/shared/pyproject.toml /app/shared/pyproject.toml
 COPY backend/app/gateway/pyproject.toml /app/gateway/pyproject.toml
-COPY backend/app/shared/shared /app/shared/shared
+COPY backend/app/shared /app/shared
 COPY backend/app/gateway/gateway /app/gateway/gateway
 # Use cache mount for uv
 RUN --mount=type=cache,target=/root/.cache/uv \

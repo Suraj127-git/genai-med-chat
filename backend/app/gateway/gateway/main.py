@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Request, Response
 import os
 import httpx
-from shared.logger import get_logger
+from shared.logger import get_logger, setup_observability
 
 
 app = FastAPI(title="Gateway")
+setup_observability("gateway", app)
 logger = get_logger(__name__)
 
 CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://genai_chat_service:8003").rstrip("/")

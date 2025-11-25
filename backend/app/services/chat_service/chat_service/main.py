@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.config import settings
+from shared.logger import setup_observability
 from chat_service.api.v1 import chat, ingest, voice, ocr, graph
 
 
 app = FastAPI(title="Chat Service")
+setup_observability("chat_service", app)
 
 app.add_middleware(
     CORSMiddleware,

@@ -2,8 +2,10 @@ from fastapi import FastAPI, UploadFile
 import httpx
 from shared.config import settings
 from shared.tracing import tracer
+from shared.logger import setup_observability
 
 app = FastAPI(title="AI Service")
+setup_observability("ai_service", app)
 
 BASE = settings.AI_AGENT_BASE_URL.rstrip("/")
 API_KEY = settings.AI_AGENT_API_KEY

@@ -7,7 +7,7 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY backend/app/pyproject.toml /app/pyproject.toml
 COPY backend/app/shared/pyproject.toml /app/shared/pyproject.toml
 COPY backend/app/services/ai_service/pyproject.toml /app/services/ai_service/pyproject.toml
-COPY backend/app/shared/shared /app/shared/shared
+COPY backend/app/shared /app/shared
 COPY backend/app/services/ai_service/ai_service /app/services/ai_service/ai_service
 # Install minimal dependencies without cache
 RUN uv sync --package ai_service --no-dev --no-cache && \
