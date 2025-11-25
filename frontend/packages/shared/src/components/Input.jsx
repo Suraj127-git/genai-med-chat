@@ -13,7 +13,7 @@ const Input = ({
   return (
     <div className="mb-5">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1 tracking-wide">
+        <label className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
           {label}
         </label>
       )}
@@ -22,12 +22,12 @@ const Input = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full px-4 py-2.5 bg-white/80 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all ${
-          error ? "border-red-500 ring-red-200" : ""
+        className={`w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-gray-100 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+          error ? "border-red-500 ring-red-500/40" : ""
         } ${className}`}
         {...props}
       />
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
     </div>
   );
 };

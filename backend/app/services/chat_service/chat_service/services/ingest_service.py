@@ -26,7 +26,7 @@ class IngestService:
             except Exception:
                 self.qdrant = None
 
-    async def save_upload(self, file, uploaded_by: int) -> str:
+    async def save_upload(self, file, uploaded_by: str) -> str:
         ext = Path(file.filename).suffix or ""
         fname = f"{uuid4().hex}{ext}"
         dest = self.upload_dir / fname
@@ -43,7 +43,7 @@ class IngestService:
         except Exception:
             return ""
 
-    def ingest_file(self, filepath: str, uploaded_by: int):
+    def ingest_file(self, filepath: str, uploaded_by: str):
         text = self._extract_text(filepath)
         if not text:
             return

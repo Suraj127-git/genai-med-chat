@@ -11,43 +11,29 @@ datasources:
     editable: true
     jsonData:
       httpMethod: GET
-      # 🚀 Updated: Correlation from Traces → Logs
       tracesToLogsV2:
         datasourceUid: 'loki'
-        # Use structured metadata for filtering
         tags: 
           - key: 'service.name'
             value: 'service'
         filterByTraceID: true
         filterBySpanID: false
-        # Query uses trace_id label that Promtail extracts
         customQuery: false
         spanStartTimeShift: '-5m'
         spanEndTimeShift: '5m'
-      
-      # Correlation from Traces → Metrics
       tracesToMetrics:
         datasourceUid: 'prometheus'
         tags:
           - key: 'service.name'
             value: 'service_name'
-      
-      # Service map
       serviceMap:
         datasourceUid: 'prometheus'
-      
-      # Node graph
       nodeGraph:
         enabled: true
-      
-      # Lokiの検索設定
       search:
         hide: false
-      
-      # 外部リンク
       lokiSearch:
         datasourceUid: 'loki'
-  
   # Loki - Logs
   - name: Loki
     type: loki
@@ -58,22 +44,17 @@ datasources:
     editable: true
     jsonData:
       maxLines: 5000
-      # 🚀 Updated: Correlation from Logs → Traces
       derivedFields:
-        # Match trace_id in JSON format: "trace_id": "abc123..."
         - datasourceUid: 'tempo'
           matcherRegex: '"trace_id":\s*"([0-9a-fA-F]{32})"'
           name: TraceID
           url: '$${__value.raw}'
           urlDisplayLabel: 'View Trace'
-        
-        # Also match if trace_id is a label (extracted by Promtail)
         - datasourceUid: 'tempo'
           matcherRegex: 'trace_id=([0-9a-fA-F]{32})'
           name: TraceID_Label
           url: '$${__value.raw}'
           urlDisplayLabel: 'View Trace (Label)'
-  
   # Prometheus - Metrics
   - name: Prometheus
     type: prometheus
@@ -84,12 +65,9 @@ datasources:
     editable: true
     jsonData:
       httpMethod: POST
-      # 🚀 Correlation from Metrics → Traces (exemplars)
       exemplarTraceIdDestinations:
         - name: trace_id
           datasourceUid: 'tempo'
           urlDisplayLabel: 'View Trace'
-      
-      # Query timeout
       timeInterval: 15s
       queryTimeout: 60s

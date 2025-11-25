@@ -35,37 +35,21 @@ const Main = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200 relative overflow-hidden">
-        {/* Floating circles for background motion */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-[-50px] left-[20%] w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-[-50px] right-[15%] w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        </div>
-
-        {/* Card */}
+      <div className="min-h-screen bg-[#0b0f14] text-gray-100 grid place-items-center">
         <div
           ref={cardRef}
-          className="relative z-10 w-full max-w-md bg-white/40 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-8"
+          className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl"
         >
           <div className="text-center mb-6">
             <div ref={logoRef} className="inline-block mb-3">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/387/387561.png"
-                alt="Medical Icon"
-                className="w-12 h-12 mx-auto"
-              />
+              <div className="w-12 h-12 rounded-lg bg-teal-600/30 grid place-items-center text-teal-300">🧬</div>
             </div>
-            <h1 className="text-3xl font-bold text-blue-700 tracking-tight">
-              GenAI Medical Chat
-            </h1>
-            <p className="text-gray-600 mt-2 text-sm">
-              {isRegistering
-                ? "Create your secure account to get AI medical insights"
-                : "Welcome back! Sign in to continue your medical conversations"}
+            <h1 className="text-2xl font-semibold text-teal-300">GenAI Medical Chat</h1>
+            <p className="text-gray-400 mt-1 text-sm">
+              {isRegistering ? "Create your account" : "Welcome back! Sign in"}
             </p>
           </div>
 
-          {/* Login/Register */}
           <div className="transition-all duration-500">
             {isRegistering ? (
               <RegisterForm
@@ -84,12 +68,12 @@ const Main = () => {
             )}
           </div>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-gray-400">
             {isRegistering ? (
               <p>
                 Already have an account?{" "}
                 <button
-                  className="text-blue-600 hover:underline font-semibold"
+                  className="text-teal-300 hover:underline font-semibold"
                   onClick={() => setIsRegistering(false)}
                 >
                   Login
@@ -99,7 +83,7 @@ const Main = () => {
               <p>
                 Don’t have an account?{" "}
                 <button
-                  className="text-blue-600 hover:underline font-semibold"
+                  className="text-teal-300 hover:underline font-semibold"
                   onClick={() => setIsRegistering(true)}
                 >
                   Register
@@ -114,20 +98,38 @@ const Main = () => {
 
   // Chat UI after login
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white">
-      <header className="bg-white shadow-md p-4 flex justify-between items-center border-b border-blue-100">
-        <h1 className="text-2xl font-semibold text-blue-700">🩺 GenAI Medical Chatbot</h1>
-        <Button
-          onClick={logout}
-          variant="secondary"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
-        >
-          Logout
-        </Button>
-      </header>
-      <main className="flex-1 p-4 overflow-y-auto">
-        <Chat />
-      </main>
+    <div className="min-h-screen bg-[#0b0f14] text-gray-100 flex">
+      <aside className="hidden md:flex md:w-64 flex-col bg-black/20 border-r border-white/10 p-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded bg-teal-500/30" />
+            <span className="text-sm text-gray-300">Home</span>
+          </div>
+          <button className="text-xs text-gray-400">⋯</button>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">📚</span><span className="text-sm">Library</span></div>
+          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">�</span><span className="text-sm">Academic</span></div>
+          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">⚙️</span><span className="text-sm">Settings</span></div>
+        </div>
+        <div className="mt-auto pt-3 border-t border-white/10">
+          <button className="w-full text-left text-xs text-gray-400">Upgrade</button>
+        </div>
+      </aside>
+      <div className="flex-1 flex flex-col">
+        <header className="h-14 border-b border-white/10 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+            <span className="text-teal-400 font-semibold">perplexity</span>
+            <span className="text-xs text-teal-300 bg-teal-600/20 px-2 py-0.5 rounded-full">pro</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={logout} className="text-xs bg-white/10 text-gray-300 px-3 py-1 rounded-lg">Logout</Button>
+          </div>
+        </header>
+        <main className="flex-1 p-4">
+          <Chat noShell />
+        </main>
+      </div>
     </div>
   );
 };

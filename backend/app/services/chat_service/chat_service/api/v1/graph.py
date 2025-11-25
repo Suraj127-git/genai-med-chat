@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 @router.get("/graph/{conv_id}")
-def get_graph(conv_id: int):
+def get_graph(conv_id: str):
     lg = LangGraphService()
     g = lg.get_graph(conv_id)
     if not g:

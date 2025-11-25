@@ -5,7 +5,6 @@ global:
     cluster: 'genai-coach'
     environment: 'development'
 
-# Alertmanager configuration (optional)
 alerting:
   alertmanagers:
     - static_configs:
@@ -21,7 +20,6 @@ scrape_configs:
           service: 'prometheus'
           component: 'monitoring'
 
-  # Scrape Tempo metrics
   - job_name: 'tempo'
     static_configs:
       - targets: ['tempo:3200']
@@ -29,7 +27,6 @@ scrape_configs:
           service: 'tempo'
           component: 'tracing'
 
-  # Scrape Loki metrics
   - job_name: 'loki'
     static_configs:
       - targets: ['loki:3100']
@@ -37,7 +34,6 @@ scrape_configs:
           service: 'loki'
           component: 'logging'
 
-  # Scrape Grafana metrics
   - job_name: 'grafana'
     static_configs:
       - targets: ['grafana:3000']
@@ -45,7 +41,6 @@ scrape_configs:
           service: 'grafana'
           component: 'visualization'
 
-  # Scrape your FastAPI backend (if you expose /metrics endpoint)
   - job_name: 'genai-coach-backend'
     scrape_interval: 10s
     static_configs:
@@ -53,5 +48,3 @@ scrape_configs:
         labels:
           service: 'genai-coach-backend'
           component: 'application'
-    # Uncomment if your FastAPI has /metrics endpoint
-    # metrics_path: '/metrics'

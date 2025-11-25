@@ -36,7 +36,7 @@ class ChatService:
             self.vs = None
             self.rqa = None
 
-    async def handle_query(self, user_id: int, text: str, modalities: Dict | None = None) -> Dict[str, Any]:
+    async def handle_query(self, user_id: str, text: str, modalities: Dict | None = None) -> Dict[str, Any]:
         t = tracer.trace("chat_service.handle_query")
         modalities = modalities or {}
         sources: list[Any] = []

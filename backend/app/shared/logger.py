@@ -11,7 +11,7 @@ def setup_observability(service_name: str, app=None):
     from opentelemetry.instrumentation.requests import RequestsInstrumentor
     from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
-    endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://tempo:4318")
+    endpoint = os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://tempo:4318/v1/traces")
     resource = Resource.create({"service.name": service_name})
     provider = TracerProvider(resource=resource)
     set_tracer_provider(provider)

@@ -8,7 +8,7 @@ services:
     container_name: genai_redis
     image: redis:latest
     ports:
-      - "6380:6379"
+      - "6379:6379"
     networks:
       - gen-ai-med-chat
     restart: always
@@ -50,16 +50,11 @@ services:
   # ======================
   user_service:
     container_name: genai_user_service
-    build:
-      context: ..
-      dockerfile: backend/app/services/user_service/Dockerfile
+    image: shettyanna/genai-user-service:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8001:8001"
-    command: >
-      uvicorn user_service.main:app --host 0.0.0.0 --port 8001
-      --reload --reload-dir /app/services/user_service/user_service --reload-dir /app/shared
     environment:
       MONGO_URI: mongodb://genai_mongo:27017
       MONGO_DB: genai_med
@@ -73,25 +68,17 @@ services:
     networks:
       - gen-ai-med-chat
     restart: always
-    volumes:
-      - ../backend/app/services/user_service/user_service:/app/services/user_service/user_service
-      - ../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Gateway Service
   # ======================
   gateway:
     container_name: genai_gateway
-    build:
-      context: ..
-      dockerfile: backend/app/gateway/Dockerfile
+    image: shettyanna/genai-gateway:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8000:8000"
-    command: >
-      uvicorn gateway.main:app --host 0.0.0.0 --port 8000
-      --reload --reload-dir /app/gateway/gateway --reload-dir /app/shared
     depends_on:
       qdrant:
         condition: service_started
@@ -106,25 +93,17 @@ services:
     networks:
       - gen-ai-med-chat
     restart: always
-    volumes:
-      - ../backend/app/gateway/gateway:/app/gateway/gateway
-      - ../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Chat Service
   # ======================
   chat_service:
     container_name: genai_chat_service
-    build:
-      context: ..
-      dockerfile: backend/app/services/chat_service/Dockerfile
+    image: shettyanna/genai-chat-service:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "8003:8003"
-    command: >
-      uvicorn chat_service.main:app --host 0.0.0.0 --port 8003
-      --reload --reload-dir /app/services/chat_service/chat_service --reload-dir /app/shared
     depends_on:
       mongo:
         condition: service_healthy
@@ -144,52 +123,41 @@ services:
     networks:
       - gen-ai-med-chat
     restart: always
-    volumes:
-      - ../backend/app/services/chat_service/chat_service:/app/services/chat_service/chat_service
-      - ../backend/app/shared:/app/shared
 
   # ======================
   # Backend - AI Service
   # ======================
   ai_service:
     container_name: genai_ai_service
-    build:
-      context: ..
-      dockerfile: backend/app/services/ai_service/Dockerfile
+    image: shettyanna/genai-ai-service:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
-    env_file:
-      - ./env/.env
     ports:
       - "8004:8004"
-    command: >
-      uvicorn ai_service.main:app --host 0.0.0.0 --port 8004
-      --reload --reload-dir /app/services/ai_service/ai_service --reload-dir /app/shared
     environment:
+      AI_AGENT_BASE_URL: ${AI_AGENT_BASE_URL:-https://openrouter.ai/api}
+      AI_AGENT_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-http://host.docker.internal:3000}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://host.docker.internal:3000}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
       OTEL_SERVICE_NAME: ai_service
-      LANGCHAIN_TRACING_V2: "true"
-      LANGCHAIN_PROJECT: genai-med-chat
     networks:
       - gen-ai-med-chat
     restart: always
-    volumes:
-      - ../backend/app/services/ai_service/ai_service:/app/services/ai_service/ai_service
-      - ../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Celery Worker
   # ======================
   worker:
     container_name: genai_worker
-    build:
-      context: ..
-      dockerfile: backend/worker/Dockerfile
+    image: shettyanna/genai-worker:${VERSION}
     labels:
       com.centurylinklabs.watchtower.enable: "true"
-    command: ["python", "-m", "celery", "-A", "celery_worker.celery_app", "worker", "--loglevel=info"]
     environment:
       CELERY_BROKER_URL: redis://genai_redis:6379/0
       CELERY_RESULT_BACKEND: redis://genai_redis:6379/1
@@ -208,33 +176,20 @@ services:
     restart: always
     volumes:
       - backend_data:/data
-      - ../backend/worker:/app/worker
-      - ../backend/app/shared:/app/shared
 
   # ======================
   # Frontend
   # ======================
   frontend:
     container_name: genai_frontend
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-      target: dev
+    image: shettyanna/genai-frontend:latest
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "5173:5173"
-    environment:
-      - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8000
-      - CHOKIDAR_USEPOLLING=true
-    command: ["npm", "--workspace", "packages/app", "run", "dev", "--", "--host", "0.0.0.0"]
+      - "5173:80"
     networks:
       - gen-ai-med-chat
     restart: always
-    volumes:
-      - ../frontend:/app
-      - frontend-node-modules:/app/node_modules
 
 
     # ============================================================================
@@ -251,7 +206,7 @@ services:
       - "4317:4317"
       - "4318:4318"
     volumes:
-      - ./observability/tempo.yaml:/etc/tempo.yaml:ro
+      - ./tempo.yaml:/etc/tempo.yaml:ro
       - tempo-data:/tmp/tempo
     networks:
       - gen-ai-med-chat
@@ -264,7 +219,7 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ./observability/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
     networks:
       - gen-ai-med-chat
@@ -279,9 +234,9 @@ services:
       - '--web.enable-lifecycle'
       - '--web.enable-remote-write-receiver'    
     ports:
-      - "9092:9090"
+      - "9090:9090"
     volumes:
-      - ./observability/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     networks:
       - gen-ai-med-chat
@@ -295,10 +250,10 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
     depends_on:
       - tempo
       - loki
@@ -311,7 +266,7 @@ services:
     image: grafana/promtail:latest
     container_name: genai-coach-promtail
     volumes:
-      - ./observability/promtail-config.yaml:/etc/promtail/config.yml
+      - ./promtail-config.yaml:/etc/promtail/config.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
@@ -319,6 +274,19 @@ services:
       - gen-ai-med-chat
     restart: unless-stopped
 
+  # ======================
+  # Watchtower Auto Updater
+  # ======================
+  # watchtower:
+  #   container_name: watchtower
+  #   image: containrrr/watchtower:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: >
+  #     --interval 30 --cleanup --label-enable --revive-stopped
+  #   networks:
+  #     - gen-ai-med-chat
 
 # ======================
 # Volumes
@@ -331,7 +299,6 @@ volumes:
   loki-data:
   prometheus-data:
   grafana-data:
-  frontend-node-modules:
 
 # ======================
 # Shared Network
@@ -339,4 +306,3 @@ volumes:
 networks:
   gen-ai-med-chat:
     driver: bridge
-

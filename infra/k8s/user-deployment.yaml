@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: genai
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: shettyanna/genai-user-service:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_URI
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_DB
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: SECRET_KEY
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_PROTOCOL
+        - name: OTEL_SERVICE_NAME
+          value: user_service
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+        readinessProbe:
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: genai
+spec:
+  selector:
+    app: user-service
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8001

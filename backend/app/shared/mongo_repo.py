@@ -16,7 +16,7 @@ class MongoRepo:
         res = self.users.insert_one(doc)
         return str(res.inserted_id)
 
-    def create_conversation(self, user_id: int, title: str | None = None) -> str:
+    def create_conversation(self, user_id: str, title: str | None = None) -> str:
         doc = {"user_id": user_id, "title": title}
         res = self.conversations.insert_one(doc)
         return str(res.inserted_id)

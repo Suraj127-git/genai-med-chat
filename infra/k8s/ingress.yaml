@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: genai-ingress
+  namespace: genai
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - secretName: genai-tls
+    hosts:
+    - api.genai.local
+    - app.genai.local
+  rules:
+  - host: api.genai.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway
+            port:
+              number: 8000
+  - host: app.genai.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 5173

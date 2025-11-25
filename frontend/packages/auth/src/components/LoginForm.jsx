@@ -39,15 +39,15 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
   };
 
   return (
-    <Card className="shadow-2xl rounded-2xl bg-white/80 backdrop-blur-md border border-blue-100">
+    <Card>
       <form
         ref={formRef}
         onSubmit={handleSubmit}
         className="space-y-5 animate-fadeIn"
       >
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-semibold text-blue-700">Welcome Back 👋</h2>
-          <p className="text-gray-500 text-sm mt-1">Sign in to continue your medical insights</p>
+          <h2 className="text-2xl font-semibold text-teal-300">Welcome Back 👋</h2>
+          <p className="text-gray-400 text-sm mt-1">Sign in to continue your medical insights</p>
         </div>
 
         <ErrorMessage message={error} />
@@ -72,8 +72,8 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
           required
         />
 
-        <div className="flex justify-between items-center mt-6">
-          <Button type="submit" disabled={loading} className="w-1/2">
+        <div className="flex gap-3 items-center mt-6">
+          <Button type="submit" disabled={loading} className="flex-1">
             {loading ? 'Logging in...' : 'Login'}
           </Button>
 
@@ -82,7 +82,7 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
             variant="secondary"
             onClick={onSwitchToRegister}
             disabled={loading}
-            className="w-1/2"
+            className="flex-1"
           >
             Register
           </Button>

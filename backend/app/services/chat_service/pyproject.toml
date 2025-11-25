@@ -21,6 +21,7 @@ dependencies = [
   "opentelemetry-instrumentation-requests>=0.46b0",
   "opentelemetry-instrumentation-logging>=0.46b0",
   "opentelemetry-instrumentation-sqlalchemy>=0.46b0",
+  "python-jose[cryptography]>=3.3.0",
 ]
 
 [build-system]

@@ -13,28 +13,18 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
-    
     relabel_configs:
-      # Extract container name
       - source_labels: [__meta_docker_container_name]
         regex: '/(.*)'
         target_label: container
-      
-      # Extract image name
       - source_labels: [__meta_docker_container_image]
         target_label: image
-      
-      # Set job name
       - target_label: job
         replacement: docker
-    
-    # 🚀 Pipeline stages to parse JSON logs and extract trace_id
     pipeline_stages:
-      # Only process logs from genai-coach-backend container
       - match:
           selector: '{container=~"genai_.*"}'
           stages:
-            # Parse JSON structure
             - json:
                 expressions:
                   timestamp: timestamp
@@ -44,34 +34,22 @@ scrape_configs:
                   service: service
                   logger: logger
                   message: message
-            
-            # Extract trace_id and span_id as labels (for filtering and correlation)
             - labels:
                 trace_id:
                 span_id:
-            
-            # Also add as structured metadata (better for high cardinality)
             - structured_metadata:
                 trace_id:
                 span_id:
-            
-            # Set log level as label
             - labels:
                 level:
-            
-            # Parse timestamp if present
             - timestamp:
                 source: timestamp
                 format: RFC3339
                 fallback_formats:
                   - "2006-01-02T15:04:05.999999"
                   - "2006-01-02 15:04:05,999"
-            
-            # Keep the message as the log line
             - output:
                 source: message
-      
-      # For other containers, just forward as-is
       - match:
           selector: '{container!="genai-coach-backend"}'
           stages:

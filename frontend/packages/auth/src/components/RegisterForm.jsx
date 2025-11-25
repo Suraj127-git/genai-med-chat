@@ -69,15 +69,15 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
   };
 
   return (
-    <Card className="shadow-2xl rounded-2xl bg-white/80 backdrop-blur-md border border-blue-100">
+    <Card>
       <form
         ref={formRef}
         onSubmit={handleSubmit}
         className="space-y-5 animate-fadeIn"
       >
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-semibold text-blue-700">Create Account ✨</h2>
-          <p className="text-gray-500 text-sm mt-1">Join GenAI Medical Chat for smarter insights</p>
+          <h2 className="text-2xl font-semibold text-teal-300">Create Account ✨</h2>
+          <p className="text-gray-400 text-sm mt-1">Join GenAI Medical Chat for smarter insights</p>
         </div>
 
         {errors.form && <ErrorMessage message={errors.form} />}
@@ -126,8 +126,8 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
           required
         />
 
-        <div className="flex justify-between items-center mt-6">
-          <Button type="submit" disabled={loading} className="w-1/2">
+        <div className="flex gap-3 items-center mt-6">
+          <Button type="submit" disabled={loading} className="flex-1">
             {loading ? 'Registering...' : 'Register'}
           </Button>
 
@@ -136,7 +136,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
             variant="secondary"
             onClick={onSwitchToLogin}
             disabled={loading}
-            className="w-1/2"
+            className="flex-1"
           >
             Login
           </Button>

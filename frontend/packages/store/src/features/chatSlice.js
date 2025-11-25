@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { apiClient } from '@genai-med-chat/shared';
 
 // Chat Service endpoints are proxied by gateway at /chat/* or directly /api/v1/* in dev
 export const sendChatQuery = createAsyncThunk(
   'chat/sendChatQuery',
-  async ({ user_id, text, conv_id }, { rejectWithValue }) => {
+  async ({ text, conv_id }, { rejectWithValue }) => {
     try {
-      const res = await axios.post('/api/v1/chat/query', { user_id, text, conv_id });
-      return res.data; // { answer, conv_id }
+      const res = await apiClient.post('/api/v1/chat/query', { text, conv_id });
+      return res; // { answer, conv_id }
     } catch (e) {
       return rejectWithValue(e.message);
     }
@@ -16,8 +16,8 @@ export const sendChatQuery = createAsyncThunk(
 
 export const fetchGraph = createAsyncThunk('chat/fetchGraph', async (conv_id, { rejectWithValue }) => {
   try {
-    const res = await axios.get(`/api/v1/graph/${conv_id}`);
-    return res.data; // { nodes, edges }
+    const res = await apiClient.get(`/api/v1/graph/${conv_id}`);
+    return res; // { nodes, edges }
   } catch (e) {
     return rejectWithValue(e.message);
   }
