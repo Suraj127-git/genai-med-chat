@@ -54,7 +54,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8086:8086"
+      - "8001:8001"
     environment:
       MONGO_URI: mongodb://genai_mongo:27017
       MONGO_DB: genai_med
@@ -74,13 +74,13 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8087:8087"
+      - "8000:8000"
     depends_on:
       qdrant:
         condition: service_started
     environment:
       CHAT_SERVICE_URL: http://genai_chat_service:8003
-      USER_SERVICE_URL: http://genai_user_service:8086
+      USER_SERVICE_URL: http://genai_user_service:8001
       PRODUCT_SERVICE_URL: http://genai_product_service:8082
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
@@ -98,7 +98,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8088:8088"
+      - "8003:8003"
     depends_on:
       mongo:
         condition: service_healthy
@@ -127,7 +127,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     ports:
-      - "8089:8089"
+      - "8004:8004"
     environment:
       AI_AGENT_BASE_URL: ${AI_AGENT_BASE_URL:-http://localhost:9000}
       AI_AGENT_API_KEY: ${AI_AGENT_API_KEY:-}
@@ -264,16 +264,16 @@ services:
   # ======================
   # Watchtower Auto Updater
   # ======================
-  watchtower:
-    container_name: watchtower
-    image: containrrr/watchtower:latest
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: >
-      --interval 30 --cleanup --label-enable --revive-stopped
-    networks:
-      - gen-ai-med-chat
+  # watchtower:
+  #   container_name: watchtower
+  #   image: containrrr/watchtower:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: >
+  #     --interval 30 --cleanup --label-enable --revive-stopped
+  #   networks:
+  #     - gen-ai-med-chat
 
 # ======================
 # Volumes

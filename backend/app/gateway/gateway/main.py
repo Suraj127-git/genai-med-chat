@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import httpx
 from shared.logger import get_logger, setup_observability
+from shared.config import settings
 
 
 app = FastAPI(title="Gateway")
@@ -67,3 +69,10 @@ async def proxy_chat_api(path: str, request: Request):
 async def proxy_graph(path: str, request: Request):
     logger.info(f"Proxying to chat_service /api/v1/graph: {path}")
     return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/graph", path, request)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS if hasattr(settings, 'CORS_ORIGINS') else ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

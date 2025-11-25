@@ -57,7 +57,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
     setLoading(true);
     try {
       await onRegister({
-        name: formData.name,
+        full_name: formData.name,
         email: formData.email,
         password: formData.password
       });
