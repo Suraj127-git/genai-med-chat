@@ -9,7 +9,6 @@ def setup_observability(service_name: str, app=None):
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
     from opentelemetry.trace import set_tracer_provider
     from opentelemetry.instrumentation.requests import RequestsInstrumentor
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
     from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://tempo:4318")
@@ -22,6 +21,7 @@ def setup_observability(service_name: str, app=None):
     RequestsInstrumentor().instrument()
     LoggingInstrumentor().instrument(set_logging_format=False)
     if app is not None:
+        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
         FastAPIInstrumentor().instrument_app(app)
 
 
