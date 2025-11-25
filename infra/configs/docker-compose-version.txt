@@ -1,0 +1,308 @@
+
+
+services:
+  # ======================
+  # Redis
+  # ======================
+  redis:
+    container_name: genai_redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+  # ======================
+  # Qdrant
+  # ======================
+  qdrant:
+    container_name: genai_qdrant
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      - gen-ai-med-chat
+    restart: always
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # ======================
+  # MongoDB
+  # ======================
+  mongo:
+    container_name: genai_mongo
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    networks:
+      - gen-ai-med-chat
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ======================
+  # Backend - User Service
+  # ======================
+  user_service:
+    container_name: genai_user_service
+    image: shettyanna/genai-user-service:${VERSION}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8001:8001"
+    environment:
+      MONGO_URI: mongodb://genai_mongo:27017
+      MONGO_DB: genai_med
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: user_service
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+  # ======================
+  # Backend - Gateway Service
+  # ======================
+  gateway:
+    container_name: genai_gateway
+    image: shettyanna/genai-gateway:${VERSION}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      CHAT_SERVICE_URL: http://genai_chat_service:8003
+      USER_SERVICE_URL: http://genai_user_service:8001
+      PRODUCT_SERVICE_URL: http://genai_product_service:8082
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: gateway
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+  # ======================
+  # Backend - Chat Service
+  # ======================
+  chat_service:
+    container_name: genai_chat_service
+    image: shettyanna/genai-chat-service:${VERSION}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8003:8003"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      ai_service:
+        condition: service_started
+    environment:
+      MONGO_URI: mongodb://genai_mongo:27017
+      MONGO_DB: genai_med
+      QDRANT_URL: http://genai_qdrant:6333
+      AI_SERVICE_URL: http://genai_ai_service:8004
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: chat_service
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+  # ======================
+  # Backend - AI Service
+  # ======================
+  ai_service:
+    container_name: genai_ai_service
+    image: shettyanna/genai-ai-service:${VERSION}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "8004:8004"
+    environment:
+      AI_AGENT_BASE_URL: ${AI_AGENT_BASE_URL:-https://openrouter.ai/api}
+      AI_AGENT_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-http://host.docker.internal:3000}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://host.docker.internal:3000}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: ai_service
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+  # ======================
+  # Backend - Celery Worker
+  # ======================
+  worker:
+    container_name: genai_worker
+    image: shettyanna/genai-worker:${VERSION}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    environment:
+      CELERY_BROKER_URL: redis://genai_redis:6379/0
+      CELERY_RESULT_BACKEND: redis://genai_redis:6379/1
+      CHAT_SERVICE_URL: http://genai_chat_service:8003
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: worker
+    depends_on:
+      redis:
+        condition: service_started
+      chat_service:
+        condition: service_started
+    networks:
+      - gen-ai-med-chat
+    restart: always
+    volumes:
+      - backend_data:/data
+
+  # ======================
+  # Frontend
+  # ======================
+  frontend:
+    container_name: genai_frontend
+    image: shettyanna/genai-frontend:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    ports:
+      - "5173:80"
+    networks:
+      - gen-ai-med-chat
+    restart: always
+
+
+    # ============================================================================
+  
+  # OBSERVABILITY LAYER
+  # ============================================================================
+  tempo:
+    image: grafana/tempo:latest
+    container_name: genai-coach-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    user: "0:0"
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/tmp/tempo
+    networks:
+      - gen-ai-med-chat
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: genai-coach-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    networks:
+      - gen-ai-med-chat
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: genai-coach-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'    
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - gen-ai-med-chat
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: genai-coach-grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+    networks:
+      - gen-ai-med-chat
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: genai-coach-promtail
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - gen-ai-med-chat
+    restart: unless-stopped
+
+  # ======================
+  # Watchtower Auto Updater
+  # ======================
+  # watchtower:
+  #   container_name: watchtower
+  #   image: containrrr/watchtower:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: >
+  #     --interval 30 --cleanup --label-enable --revive-stopped
+  #   networks:
+  #     - gen-ai-med-chat
+
+# ======================
+# Volumes
+# ======================
+volumes:
+  redis_data:
+  qdrant_data:
+  backend_data:
+  tempo-data:
+  loki-data:
+  prometheus-data:
+  grafana-data:
+
+# ======================
+# Shared Network
+# ======================
+networks:
+  gen-ai-med-chat:
+    driver: bridge

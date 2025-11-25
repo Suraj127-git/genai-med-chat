@@ -1,18 +1,6 @@
 import React from "react";
 
-export default function Sidebar({ active = "interview", onSelect = () => {} }) {
-  const Item = ({ id, icon, label }) => (
-    <button
-      onClick={() => onSelect(id)}
-      className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left ${
-        active === id ? "bg-white/10 text-teal-300" : "text-gray-300 hover:bg-white/5"
-      }`}
-    >
-      <span className="text-lg">{icon}</span>
-      <span className="text-sm">{label}</span>
-    </button>
-  );
-
+export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-64 flex-col bg-black/20 border-r border-white/10 p-3">
       <div className="flex items-center justify-between mb-3">

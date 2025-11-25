@@ -171,6 +171,10 @@ export default function Chat({ noShell = false, onLogout = null }) {
         {showGraph && (
           <GraphModal onClose={() => setShowGraph(false)} graph={graph} convId={lastConvId} />
         )}
+
+        {showGraph && (
+          <GraphModal onClose={() => setShowGraph(false)} graph={graph} convId={lastConvId} />
+        )}
       </div>
     </div>
   );

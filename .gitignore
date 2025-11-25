@@ -76,7 +76,6 @@ celery*.log
 infra/*.log
 infra/logs/
 infra/logs/*.log
-
-
+infra/langfuse/
 infra/env/.env
 infra/env
