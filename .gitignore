@@ -15,14 +15,7 @@ develop-eggs/
 .installed.cfg
 *.egg-info
 
-# Virtual Environment
-.env
-*.env
-.venv/
-venv/
-ENV/
-env/
-.env.*
+
 
 # IDE
 .vscode/
@@ -76,11 +69,6 @@ celerybeat-schedule
 celerybeat.pid
 celery*.log
 
-# Docker Compose local overrides and env files
-infra/docker-compose.override.yml
-infra/*.env
-!infra/.env
-
 # General caches
 .cache/
 
@@ -88,9 +76,9 @@ infra/*.env
 infra/*.log
 infra/logs/
 infra/logs/*.log
-infra/langfuse/
+
+
 infra/env/.env
-infra/env
 
 tls.key
 tls.crt
