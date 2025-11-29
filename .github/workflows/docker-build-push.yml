@@ -22,7 +22,7 @@ jobs:
       - name: Extract version from .env
         id: get_version
         run: |
-          VERSION=$(grep VERSION infra/.env | cut -d '=' -f2)
+          VERSION=$(grep VERSION infra/env/.env | cut -d '=' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Extracted version: $VERSION"
 
