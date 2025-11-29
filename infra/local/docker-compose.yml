@@ -59,7 +59,7 @@ services:
       - "8001:8001"
     command: >
       uvicorn user_service.main:app --host 0.0.0.0 --port 8001
-      --reload --reload-dir /app/services/user_service/user_service --reload-dir /app/shared
+      --reload --reload-dir /app
     environment:
       MONGO_URI: mongodb://genai_mongo:27017
       MONGO_DB: genai_med
@@ -74,8 +74,8 @@ services:
       - gen-ai-med-chat
     restart: always
     volumes:
-      - ../backend/app/services/user_service/user_service:/app/services/user_service/user_service
-      - ../backend/app/shared:/app/shared
+      - ../../backend/app/services/user_service/user_service:/app/services/user_service/user_service
+      - ../../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Gateway Service
@@ -91,7 +91,7 @@ services:
       - "8000:8000"
     command: >
       uvicorn gateway.main:app --host 0.0.0.0 --port 8000
-      --reload --reload-dir /app/gateway/gateway --reload-dir /app/shared
+      --reload --reload-dir /app
     depends_on:
       qdrant:
         condition: service_started
@@ -107,8 +107,8 @@ services:
       - gen-ai-med-chat
     restart: always
     volumes:
-      - ../backend/app/gateway/gateway:/app/gateway/gateway
-      - ../backend/app/shared:/app/shared
+      - ../../backend/app/gateway/gateway:/app/gateway/gateway
+      - ../../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Chat Service
@@ -124,7 +124,7 @@ services:
       - "8003:8003"
     command: >
       uvicorn chat_service.main:app --host 0.0.0.0 --port 8003
-      --reload --reload-dir /app/services/chat_service/chat_service --reload-dir /app/shared
+      --reload --reload-dir /app
     depends_on:
       mongo:
         condition: service_healthy
@@ -145,8 +145,8 @@ services:
       - gen-ai-med-chat
     restart: always
     volumes:
-      - ../backend/app/services/chat_service/chat_service:/app/services/chat_service/chat_service
-      - ../backend/app/shared:/app/shared
+      - ../../backend/app/services/chat_service/chat_service:/app/services/chat_service/chat_service
+      - ../../backend/app/shared:/app/shared
 
   # ======================
   # Backend - AI Service
@@ -164,7 +164,7 @@ services:
       - "8004:8004"
     command: >
       uvicorn ai_service.main:app --host 0.0.0.0 --port 8004
-      --reload --reload-dir /app/services/ai_service/ai_service --reload-dir /app/shared
+      --reload --reload-dir /app
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
@@ -176,8 +176,8 @@ services:
       - gen-ai-med-chat
     restart: always
     volumes:
-      - ../backend/app/services/ai_service/ai_service:/app/services/ai_service/ai_service
-      - ../backend/app/shared:/app/shared
+      - ../../backend/app/services/ai_service/ai_service:/app/services/ai_service/ai_service
+      - ../../backend/app/shared:/app/shared
 
   # ======================
   # Backend - Celery Worker
@@ -208,8 +208,8 @@ services:
     restart: always
     volumes:
       - backend_data:/data
-      - ../backend/worker:/app/worker
-      - ../backend/app/shared:/app/shared
+      - ../../backend/worker:/app/worker
+      - ../../backend/app/shared:/app/shared
 
   # ======================
   # Frontend
