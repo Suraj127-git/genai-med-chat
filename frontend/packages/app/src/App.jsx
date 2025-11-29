@@ -96,40 +96,9 @@ const Main = () => {
     );
   }
 
-  // Chat UI after login
   return (
-    <div className="min-h-screen bg-[#0b0f14] text-gray-100 flex">
-      <aside className="hidden md:flex md:w-64 flex-col bg-black/20 border-r border-white/10 p-3">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded bg-teal-500/30" />
-            <span className="text-sm text-gray-300">Home</span>
-          </div>
-          <button className="text-xs text-gray-400">⋯</button>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">📚</span><span className="text-sm">Library</span></div>
-          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">�</span><span className="text-sm">Academic</span></div>
-          <div className="flex items-center gap-2 text-gray-300"><span className="text-lg">⚙️</span><span className="text-sm">Settings</span></div>
-        </div>
-        <div className="mt-auto pt-3 border-t border-white/10">
-          <button className="w-full text-left text-xs text-gray-400">Upgrade</button>
-        </div>
-      </aside>
-      <div className="flex-1 flex flex-col">
-        <header className="h-14 border-b border-white/10 flex items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <span className="text-teal-400 font-semibold">perplexity</span>
-            <span className="text-xs text-teal-300 bg-teal-600/20 px-2 py-0.5 rounded-full">pro</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={logout} className="text-xs bg-white/10 text-gray-300 px-3 py-1 rounded-lg">Logout</Button>
-          </div>
-        </header>
-        <main className="flex-1 p-4">
-          <Chat noShell />
-        </main>
-      </div>
+    <div className="min-h-screen bg-[#0b0f14] text-gray-100 p-4">
+      <Chat onLogout={logout} />
     </div>
   );
 };

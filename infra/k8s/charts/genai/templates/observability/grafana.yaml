@@ -1,0 +1,94 @@
+{{- if .Values.observability.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: {{ .Values.namespace }}
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo:3200
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: {{ .Values.observability.images.grafana | quote }}
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          value: {{ .Values.observability.grafana.adminUser | quote }}
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: {{ .Values.observability.grafana.adminPassword | quote }}
+        - name: GF_PATHS_PROVISIONING
+          value: /etc/grafana/provisioning
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: grafana-provisioning
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: grafana-dashboards
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: grafana-dashboards-json
+          mountPath: /etc/grafana/provisioning/dashboards/json
+      volumes:
+      - name: grafana-provisioning
+        configMap:
+          name: grafana-datasources
+      - name: grafana-dashboards
+        configMap:
+          name: grafana-dashboards
+          items:
+          - key: dashboards.yaml
+            path: dashboards.yaml
+      - name: grafana-dashboards-json
+        configMap:
+          name: grafana-dashboards
+          items:
+          - key: service_graph.json
+            path: service_graph.json
+          - key: logs_overview.json
+            path: logs_overview.json
+          - key: prometheus_targets.json
+            path: prometheus_targets.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+{{- end }}

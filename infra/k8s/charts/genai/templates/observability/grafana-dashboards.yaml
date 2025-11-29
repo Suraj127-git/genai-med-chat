@@ -1,0 +1,108 @@
+{{- if .Values.observability.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: {{ .Values.namespace }}
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: default
+        orgId: 1
+        folder: GenAI
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /etc/grafana/provisioning/dashboards/json
+  service_graph.json: |
+    {
+      "uid": "service-graph",
+      "title": "Service Graph",
+      "timezone": "browser",
+      "schemaVersion": 36,
+      "version": 1,
+      "panels": [
+        {
+          "type": "graph",
+          "title": "Requests per service",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "sum(rate(tempo_service_graph_request_total[5m])) by (service_name)",
+              "legendFormat": "{{ "{{" }}service_name{{ "}}" }}",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }
+  logs_overview.json: |
+    {
+      "uid": "logs-overview",
+      "title": "Logs Overview",
+      "timezone": "browser",
+      "schemaVersion": 36,
+      "version": 1,
+      "panels": [
+        {
+          "type": "logs",
+          "title": "Namespace logs",
+          "datasource": {
+            "type": "loki",
+            "uid": "Loki"
+          },
+          "options": {
+            "dedupStrategy": "none",
+            "showLabels": true
+          },
+          "targets": [
+            {
+              "expr": "{namespace=\"genai\"}",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }
+  prometheus_targets.json: |
+    {
+      "uid": "prometheus-targets",
+      "title": "Prometheus Targets",
+      "timezone": "browser",
+      "schemaVersion": 36,
+      "version": 1,
+      "panels": [
+        {
+          "type": "table",
+          "title": "Targets status",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "up",
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "groupBy",
+              "options": {
+                "fields": {
+                  "job": {
+                    "aggregations": []
+                  },
+                  "instance": {
+                    "aggregations": []
+                  },
+                  "Value": {
+                    "aggregations": []
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+{{- end }}

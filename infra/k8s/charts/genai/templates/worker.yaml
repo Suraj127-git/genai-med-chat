@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: worker
+spec:
+  replicas: {{ .Values.replicas.worker }}
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: {{ .Values.images.worker | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+        env:
+        - name: CELERY_BROKER_URL
+          value: redis://redis:6379/0
+        - name: CELERY_RESULT_BACKEND
+          value: redis://redis:6379/1
+        - name: CHAT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: CHAT_SERVICE_URL
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_PROTOCOL
+        - name: OTEL_SERVICE_NAME
+          value: worker
+        - name: LANGSMITH_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_ENDPOINT
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: LANGSMITH_API_KEY
+        - name: LANGSMITH_PROJECT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_PROJECT
+        - name: LANGSMITH_TRACING
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_TRACING
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo ok
+          initialDelaySeconds: 20
+          periodSeconds: 30

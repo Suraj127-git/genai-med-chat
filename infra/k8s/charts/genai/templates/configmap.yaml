@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genai-config
+  namespace: {{ .Values.namespace }}
+data:
+  CHAT_SERVICE_URL: {{ .Values.config.CHAT_SERVICE_URL | quote }}
+  USER_SERVICE_URL: {{ .Values.config.USER_SERVICE_URL | quote }}
+  PRODUCT_SERVICE_URL: {{ .Values.config.PRODUCT_SERVICE_URL | quote }}
+  MONGO_URI: {{ .Values.config.MONGO_URI | quote }}
+  MONGO_DB: {{ .Values.config.MONGO_DB | quote }}
+  QDRANT_URL: {{ .Values.config.QDRANT_URL | quote }}
+  AI_SERVICE_URL: {{ .Values.config.AI_SERVICE_URL | quote }}
+  OPENROUTER_API_BASE_URL: {{ .Values.config.OPENROUTER_API_BASE_URL | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.OTEL_EXPORTER_OTLP_ENDPOINT | quote }}
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: {{ .Values.config.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT | quote }}
+  OTEL_EXPORTER_OTLP_PROTOCOL: {{ .Values.config.OTEL_EXPORTER_OTLP_PROTOCOL | quote }}
+  LANGSMITH_TRACING: {{ .Values.config.LANGSMITH_TRACING | quote }}
+  LANGSMITH_ENDPOINT: {{ .Values.config.LANGSMITH_ENDPOINT | quote }}
+  LANGSMITH_PROJECT: {{ .Values.config.LANGSMITH_PROJECT | quote }}

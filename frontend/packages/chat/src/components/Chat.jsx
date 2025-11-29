@@ -6,8 +6,10 @@ import Sidebar from "./Sidebar.jsx";
 import MessageList from "./MessageList.jsx";
 import Composer from "./Composer.jsx";
 import GraphModal from "./GraphModal.jsx";
+import Appointments from "./Appointments.jsx";
+import Profile from "./Profile.jsx";
 
-export default function Chat({ noShell = false }) {
+export default function Chat({ noShell = false, onLogout = null }) {
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.chat.messages);
   const loading = useSelector((state) => state.chat.loading);
@@ -21,6 +23,7 @@ export default function Chat({ noShell = false }) {
   const [audioChunks, setAudioChunks] = useState([]);
   const [showGraph, setShowGraph] = useState(false);
   const chatEndRef = useRef(null);
+  const [active, setActive] = useState("interview");
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -100,59 +103,69 @@ export default function Chat({ noShell = false }) {
     if (!res.error) setShowGraph(true);
   };
 
+  const renderInterview = () => (
+    messages.length === 0 ? (
+      <div className="flex-1 grid place-items-center px-4">
+        <div className="w-full max-w-2xl">
+          <div className="text-center mb-6">
+            <div className="text-3xl font-semibold text-teal-400">GenAI Medical Assistant</div>
+            <div className="text-sm text-gray-400 mt-1">Ask anything. Type @ for mentions and / for shortcuts.</div>
+          </div>
+          <Composer
+            value={input}
+            onChange={setInput}
+            onSubmit={() => handleSend()}
+            onVoice={handleVoice}
+            recording={recording}
+            onUpload={handleFileUpload}
+            onGraph={handleShowGraph}
+            loading={loading}
+          />
+        </div>
+      </div>
+    ) : (
+      <div className="flex-1 flex flex-col items-center">
+        <div className="w-full max-w-3xl flex-1">
+          <MessageList refEl={chatEndRef} messages={messages} loading={loading} />
+        </div>
+        <div className="w-full max-w-3xl px-4 pb-4">
+          <Composer
+            value={input}
+            onChange={setInput}
+            onSubmit={() => handleSend()}
+            onVoice={handleVoice}
+            recording={recording}
+            onUpload={handleFileUpload}
+            onGraph={handleShowGraph}
+            loading={loading}
+          />
+        </div>
+      </div>
+    )
+  );
+
   return (
     <div className={`w-full min-h-[70vh] bg-[#0b0f14] text-gray-100 ${noShell ? "" : "flex"} rounded-2xl overflow-hidden`}>
-      {!noShell && <Sidebar />}
+      {!noShell && <Sidebar active={active} onSelect={setActive} />}
       <div className="flex-1 flex flex-col">
         {!noShell && (
           <header className="h-14 border-b border-white/10 flex items-center justify-between px-4">
             <div className="flex items-center gap-2">
-              <span className="text-teal-400 font-semibold">perplexity</span>
+              <span className="text-teal-400 font-semibold capitalize">{active}</span>
               <span className="text-xs text-teal-300 bg-teal-600/20 px-2 py-0.5 rounded-full">pro</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-white/10" />
+              {onLogout && (
+                <button onClick={onLogout} className="text-xs bg-white/10 text-gray-300 px-3 py-1 rounded-lg">Logout</button>
+              )}
             </div>
           </header>
         )}
 
-        {messages.length === 0 ? (
-          <div className="flex-1 grid place-items-center px-4">
-            <div className="w-full max-w-2xl">
-              <div className="text-center mb-6">
-                <div className="text-3xl font-semibold text-teal-400">GenAI Medical Assistant</div>
-                <div className="text-sm text-gray-400 mt-1">Ask anything. Type @ for mentions and / for shortcuts.</div>
-              </div>
-              <Composer
-                value={input}
-                onChange={setInput}
-                onSubmit={() => handleSend()}
-                onVoice={handleVoice}
-                recording={recording}
-                onUpload={handleFileUpload}
-                onGraph={handleShowGraph}
-                loading={loading}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center">
-            <div className="w-full max-w-3xl flex-1">
-              <MessageList refEl={chatEndRef} messages={messages} loading={loading} />
-            </div>
-            <div className="w-full max-w-3xl px-4 pb-4">
-              <Composer
-                value={input}
-                onChange={setInput}
-                onSubmit={() => handleSend()}
-                onVoice={handleVoice}
-                recording={recording}
-                onUpload={handleFileUpload}
-                onGraph={handleShowGraph}
-                loading={loading}
-              />
-            </div>
-          </div>
+        {noShell ? renderInterview() : (
+          active === "interview" ? renderInterview() : (
+            active === "appointments" ? <Appointments /> : <Profile />
+          )
         )}
 
         {showGraph && (

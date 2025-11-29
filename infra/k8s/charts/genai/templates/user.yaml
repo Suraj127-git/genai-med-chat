@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-service
+spec:
+  replicas: {{ .Values.replicas.user }}
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: {{ .Values.images.user | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+        ports:
+        - containerPort: {{ .Values.ports.user }}
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_URI
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_DB
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: SECRET_KEY
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_PROTOCOL
+        - name: OTEL_SERVICE_NAME
+          value: user_service
+        - name: LANGSMITH_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_ENDPOINT
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: LANGSMITH_API_KEY
+        - name: LANGSMITH_PROJECT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_PROJECT
+        - name: LANGSMITH_TRACING
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_TRACING
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.ports.user }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.ports.user }}
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: user-service
+  ports:
+  - name: http
+    port: {{ .Values.ports.user }}
+    targetPort: {{ .Values.ports.user }}

@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: chat-service
+spec:
+  replicas: {{ .Values.replicas.chat }}
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+      - name: chat-service
+        image: {{ .Values.images.chat | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+        ports:
+        - containerPort: {{ .Values.ports.chat }}
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_URI
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: MONGO_DB
+        - name: QDRANT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: QDRANT_URL
+        - name: AI_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: AI_SERVICE_URL
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OTEL_EXPORTER_OTLP_PROTOCOL
+        - name: OTEL_SERVICE_NAME
+          value: chat_service
+        - name: LANGSMITH_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_ENDPOINT
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: LANGSMITH_API_KEY
+        - name: LANGSMITH_PROJECT
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_PROJECT
+        - name: LANGSMITH_TRACING
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: LANGSMITH_TRACING
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.ports.chat }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.ports.chat }}
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: chat-service
+  ports:
+  - name: http
+    port: {{ .Values.ports.chat }}
+    targetPort: {{ .Values.ports.chat }}

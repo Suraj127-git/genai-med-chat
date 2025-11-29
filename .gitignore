@@ -91,3 +91,6 @@ infra/logs/*.log
 infra/langfuse/
 infra/env/.env
 infra/env
+
+tls.key
+tls.crt

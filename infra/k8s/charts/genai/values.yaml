@@ -1,0 +1,127 @@
+namespace: genai
+
+images:
+  frontend: shettyanna/genai-frontend:latest
+  gateway: shettyanna/genai-gateway:latest
+  chat: shettyanna/genai-chat-service:latest
+  user: shettyanna/genai-user-service:latest
+  ai: shettyanna/genai-ai-service:latest
+  worker: shettyanna/genai-worker:latest
+  redis: redis:latest
+  mongo: mongo:7
+  qdrant: qdrant/qdrant:latest
+
+imagePullPolicy: Always
+
+replicas:
+  frontend: 1
+  gateway: 1
+  chat: 1
+  user: 1
+  ai: 1
+  worker: 1
+  redis: 1
+  mongo: 1
+  qdrant: 1
+
+ports:
+  frontend: 80
+  gateway: 8000
+  chat: 8003
+  user: 8001
+  ai: 8004
+  redis: 6379
+  mongo: 27017
+  qdrantHttp: 6333
+  qdrantGrpc: 6334
+
+config:
+  CHAT_SERVICE_URL: http://chat-service:8003
+  USER_SERVICE_URL: http://user-service:8001
+  MONGO_URI: mongodb://mongo:27017
+  MONGO_DB: genai_med
+  QDRANT_URL: http://qdrant:6333
+  AI_SERVICE_URL: http://ai-service:8004
+  OPENROUTER_API_BASE_URL: https://openrouter.ai/api
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+  OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  LANGSMITH_TRACING: "true"
+  LANGSMITH_ENDPOINT: https://api.smith.langchain.com
+  LANGSMITH_PROJECT: pr-large-account-20
+
+secrets:
+  OPENROUTER_API_KEY: ""
+  SECRET_KEY: ""
+  LANGSMITH_API_KEY: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  
+  tls:
+    enabled: true
+    secretName: genai-tls
+    hosts:
+      - api.genai.local
+      - app.genai.local
+      - chat.genai.local
+      - ai.genai.local
+      - user.genai.local
+      - grafana.genai.local
+      - prometheus.genai.local
+      - tempo.genai.local
+
+  hosts:
+    - host: app.genai.local
+      service: frontend
+      port: 80
+
+    - host: api.genai.local
+      service: gateway
+      port: 8000
+
+    - host: chat.genai.local
+      service: chat-service
+      port: 8003
+
+    - host: ai.genai.local
+      service: ai-service
+      port: 8004
+
+    - host: user.genai.local
+      service: user-service
+      port: 8001
+
+    - host: grafana.genai.local
+      service: grafana
+      port: 3000
+
+    - host: prometheus.genai.local
+      service: prometheus
+      port: 9090
+
+    - host: tempo.genai.local
+      service: tempo
+      port: 3200
+
+
+storage:
+  mongo:
+    size: 10Gi
+  qdrant:
+    size: 10Gi
+
+observability:
+  enabled: true
+  images:
+    grafana: grafana/grafana:10.4.3
+    loki: grafana/loki:2.9.3
+    promtail: grafana/promtail:2.9.3
+    prometheus: prom/prometheus:v2.53.0
+    tempo: grafana/tempo:2.3.0
+  storage:
+    loki: 10Gi
+  grafana:
+    adminUser: admin
+    adminPassword: admin

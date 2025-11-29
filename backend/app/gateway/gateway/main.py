@@ -10,9 +10,8 @@ app = FastAPI(title="Gateway")
 setup_observability("gateway", app)
 logger = get_logger(__name__)
 
-CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://genai_chat_service:8003").rstrip("/")
-USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://genai_user_service:8086").rstrip("/")
-PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://genai_product_service:8082").rstrip("/")
+CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://chat-service:8003").rstrip("/")
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user-service:8001").rstrip("/")
 
 
 async def proxy_request(target_base: str, path: str, request: Request) -> Response:
@@ -42,12 +41,6 @@ async def proxy_users(path: str, request: Request):
     return await proxy_request(USER_SERVICE_URL, path, request)
 
 
-@app.api_route("/products/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
-async def proxy_products(path: str, request: Request):
-    logger.info(f"Proxying to product_service: {path}")
-    return await proxy_request(PRODUCT_SERVICE_URL, path, request)
-
-
 @app.get("/ping")
 async def ping():
     return {"gateway": "ok"}
@@ -69,6 +62,18 @@ async def proxy_chat_api(path: str, request: Request):
 async def proxy_graph(path: str, request: Request):
     logger.info(f"Proxying to chat_service /api/v1/graph: {path}")
     return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/graph", path, request)
+
+
+@app.api_route("/api/v1/voice", methods=["POST"])  # file upload
+async def proxy_voice(request: Request):
+    logger.info("Proxying to chat_service /api/v1/voice")
+    return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/voice", "", request)
+
+
+@app.api_route("/api/v1/ocr", methods=["POST"])  # file upload
+async def proxy_ocr(request: Request):
+    logger.info("Proxying to chat_service /api/v1/ocr")
+    return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/ocr", "", request)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS if hasattr(settings, 'CORS_ORIGINS') else ["*"],

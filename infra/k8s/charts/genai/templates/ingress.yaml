@@ -1,0 +1,31 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: genai-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
+spec:
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - secretName: {{ .Values.ingress.tls.secretName }}
+    hosts:
+    {{- range .Values.ingress.tls.hosts }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+  {{- end }}
+{{- end }}
