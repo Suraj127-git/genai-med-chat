@@ -79,6 +79,4 @@ infra/logs/*.log
 
 
 infra/env/.env
-
-tls.key
-tls.crt
+infra/env
