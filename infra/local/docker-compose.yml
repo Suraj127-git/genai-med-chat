@@ -51,7 +51,7 @@ services:
   user_service:
     container_name: genai_user_service
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/app/services/user_service/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
@@ -83,7 +83,7 @@ services:
   gateway:
     container_name: genai_gateway
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/app/gateway/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
@@ -116,7 +116,7 @@ services:
   chat_service:
     container_name: genai_chat_service
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/app/services/chat_service/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
@@ -154,12 +154,12 @@ services:
   ai_service:
     container_name: genai_ai_service
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/app/services/ai_service/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     env_file:
-      - ./env/.env
+      - ../env/.env
     ports:
       - "8004:8004"
     command: >
@@ -185,7 +185,7 @@ services:
   worker:
     container_name: genai_worker
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/worker/Dockerfile
     labels:
       com.centurylinklabs.watchtower.enable: "true"
@@ -217,7 +217,7 @@ services:
   frontend:
     container_name: genai_frontend
     build:
-      context: ../frontend
+      context: ../../frontend
       dockerfile: Dockerfile
       target: dev
     labels:
@@ -233,7 +233,7 @@ services:
       - gen-ai-med-chat
     restart: always
     volumes:
-      - ../frontend:/app
+      - ../../frontend:/app
       - frontend-node-modules:/app/node_modules
 
 
