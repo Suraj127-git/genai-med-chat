@@ -22,6 +22,36 @@ spec:
         ports:
         - containerPort: {{ .Values.ports.ai }}
         env:
+        - name: OLLAMA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OLLAMA_URL
+        - name: OLLAMA_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: OLLAMA_MODEL
+        - name: EMBEDDING_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: EMBEDDING_MODEL
+        - name: QDRANT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: QDRANT_URL
+        - name: QDRANT_COLLECTION
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: QDRANT_COLLECTION
+        - name: MEDICAL_DATA_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genai-secrets
+              key: MEDICAL_DATA_KEY
         - name: OPENROUTER_API_BASE_URL
           valueFrom:
             configMapKeyRef:

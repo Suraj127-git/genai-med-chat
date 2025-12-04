@@ -98,6 +98,7 @@ services:
     environment:
       CHAT_SERVICE_URL: http://genai_chat_service:8003
       USER_SERVICE_URL: http://genai_user_service:8001
+      AI_SERVICE_URL: http://genai_ai_service:8004
       PRODUCT_SERVICE_URL: http://genai_product_service:8082
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
@@ -166,6 +167,12 @@ services:
       uvicorn ai_service.main:app --host 0.0.0.0 --port 8004
       --reload --reload-dir /app
     environment:
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+      QDRANT_URL: http://genai_qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-docs}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      MEDICAL_DATA_KEY: ${MEDICAL_DATA_KEY:-}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
@@ -339,4 +346,3 @@ volumes:
 networks:
   gen-ai-med-chat:
     driver: bridge
-

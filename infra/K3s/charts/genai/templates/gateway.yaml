@@ -32,6 +32,11 @@ spec:
             configMapKeyRef:
               name: genai-config
               key: USER_SERVICE_URL
+        - name: AI_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: genai-config
+              key: AI_SERVICE_URL
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           valueFrom:
             configMapKeyRef:

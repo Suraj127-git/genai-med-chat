@@ -41,6 +41,7 @@ config:
   MONGO_URI: mongodb://mongo:27017
   MONGO_DB: genai_med
   QDRANT_URL: http://qdrant:6333
+  QDRANT_COLLECTION: docs
   AI_SERVICE_URL: http://ai-service:8004
   OPENROUTER_API_BASE_URL: https://openrouter.ai/api
   OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
@@ -49,11 +50,15 @@ config:
   LANGSMITH_TRACING: "true"
   LANGSMITH_ENDPOINT: https://api.smith.langchain.com
   LANGSMITH_PROJECT: pr-large-account-20
+  OLLAMA_URL: http://ollama:11434
+  OLLAMA_MODEL: llama3.1
+  EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
 
 secrets:
   OPENROUTER_API_KEY: ""
   SECRET_KEY: ""
   LANGSMITH_API_KEY: ""
+  MEDICAL_DATA_KEY: ""
 
 ingress:
   enabled: true

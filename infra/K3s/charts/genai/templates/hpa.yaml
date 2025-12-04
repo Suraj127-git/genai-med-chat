@@ -49,11 +49,11 @@ spec:
     kind: Deployment
     name: ai-service
   minReplicas: {{ .Values.replicas.ai }}
-  maxReplicas: 4
+  maxReplicas: 6
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 70
+        averageUtilization: 65

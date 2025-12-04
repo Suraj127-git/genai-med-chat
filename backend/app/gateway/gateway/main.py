@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://chat-service:8003").rstrip("/")
 USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user-service:8001").rstrip("/")
+AI_SERVICE_URL = os.getenv("AI_SERVICE_URL", "http://ai-service:8004").rstrip("/")
 
 
 async def proxy_request(target_base: str, path: str, request: Request) -> Response:
@@ -74,6 +75,12 @@ async def proxy_voice(request: Request):
 async def proxy_ocr(request: Request):
     logger.info("Proxying to chat_service /api/v1/ocr")
     return await proxy_request(f"{CHAT_SERVICE_URL}/api/v1/ocr", "", request)
+
+
+@app.api_route("/api/v1/index", methods=["POST"])  # ingestion
+async def proxy_index(request: Request):
+    logger.info("Proxying to ai_service /api/v1/index")
+    return await proxy_request(f"{AI_SERVICE_URL}/api/v1/index", "", request)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS if hasattr(settings, 'CORS_ORIGINS') else ["*"],

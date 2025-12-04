@@ -10,6 +10,7 @@ data:
   MONGO_URI: {{ .Values.config.MONGO_URI | quote }}
   MONGO_DB: {{ .Values.config.MONGO_DB | quote }}
   QDRANT_URL: {{ .Values.config.QDRANT_URL | quote }}
+  QDRANT_COLLECTION: {{ .Values.config.QDRANT_COLLECTION | quote }}
   AI_SERVICE_URL: {{ .Values.config.AI_SERVICE_URL | quote }}
   OPENROUTER_API_BASE_URL: {{ .Values.config.OPENROUTER_API_BASE_URL | quote }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.OTEL_EXPORTER_OTLP_ENDPOINT | quote }}
@@ -18,3 +19,6 @@ data:
   LANGSMITH_TRACING: {{ .Values.config.LANGSMITH_TRACING | quote }}
   LANGSMITH_ENDPOINT: {{ .Values.config.LANGSMITH_ENDPOINT | quote }}
   LANGSMITH_PROJECT: {{ .Values.config.LANGSMITH_PROJECT | quote }}
+  OLLAMA_URL: {{ .Values.config.OLLAMA_URL | quote }}
+  OLLAMA_MODEL: {{ .Values.config.OLLAMA_MODEL | quote }}
+  EMBEDDING_MODEL: {{ .Values.config.EMBEDDING_MODEL | quote }}
