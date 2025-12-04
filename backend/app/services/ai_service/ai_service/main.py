@@ -106,3 +106,24 @@ async def index(payload: dict, _: dict = Depends(require_role("user"))):
         text = payload.get("text") or ""
         metadata = payload.get("metadata") or {}
         return rag.store_medical_doc(user_id=user_id, content=text, metadata=metadata)
+
+
+@app.post("/api/v1/embed")
+@traceable
+async def embed(payload: dict):
+    with otel_tracer.start_as_current_span("ai_service.embed"):
+        text = payload.get("text") or ""
+        if not text:
+            return {"vector": [], "dim": 0}
+        try:
+            vec = rag.emb.embed_query(text)
+            return {"vector": vec, "dim": len(vec)}
+        except Exception:
+            try:
+                from langchain_community.embeddings import HuggingFaceEmbeddings
+                model = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+                emb = HuggingFaceEmbeddings(model_name=model)
+                vec = emb.embed_query(text)
+                return {"vector": vec, "dim": len(vec)}
+            except Exception as e:
+                return {"error": str(e), "vector": [], "dim": 0}

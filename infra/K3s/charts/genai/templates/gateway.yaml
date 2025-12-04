@@ -76,11 +76,11 @@ spec:
               key: LANGSMITH_TRACING
         resources:
           requests:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 300m
+            memory: 512Mi
           limits:
-            cpu: 500m
-            memory: 256Mi
+            cpu: 600m
+            memory: 768Mi
         readinessProbe:
           tcpSocket:
             port: {{ .Values.ports.gateway }}

@@ -23,11 +23,11 @@ spec:
         - containerPort: {{ .Values.ports.frontend }}
         resources:
           requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
             cpu: 500m
-            memory: 256Mi
+            memory: 512Mi
+          limits:
+            cpu: "1"
+            memory: 2Gi
         readinessProbe:
           tcpSocket:
             port: {{ .Values.ports.frontend }}

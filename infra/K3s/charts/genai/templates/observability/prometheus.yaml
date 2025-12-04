@@ -53,6 +53,13 @@ spec:
       - name: prometheus
         image: {{ .Values.observability.images.prometheus | quote }}
         args: ["--config.file=/etc/prometheus/prometheus.yaml", "--web.enable-remote-write-receiver"]
+        resources:
+          requests:
+            cpu: 300m
+            memory: 1Gi
+          limits:
+            cpu: 500m
+            memory: 1536Mi
         ports:
         - containerPort: 9090
         volumeMounts:

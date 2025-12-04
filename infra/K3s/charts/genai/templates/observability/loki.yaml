@@ -57,6 +57,13 @@ spec:
       - name: loki
         image: {{ .Values.observability.images.loki | quote }}
         args: ["-config.file=/etc/loki/loki-config.yaml"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 300m
+            memory: 1Gi
         ports:
         - containerPort: 3100
         volumeMounts:

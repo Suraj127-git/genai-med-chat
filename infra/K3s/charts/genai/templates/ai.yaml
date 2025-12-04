@@ -101,10 +101,10 @@ spec:
           value: ai_service
         resources:
           requests:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 800m
+            memory: 1Gi
           limits:
-            cpu: "2"
+            cpu: "1"
             memory: 2Gi
         readinessProbe:
           tcpSocket:

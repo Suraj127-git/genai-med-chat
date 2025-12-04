@@ -42,6 +42,13 @@ spec:
       containers:
       - name: grafana
         image: {{ .Values.observability.images.grafana | quote }}
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
         env:
         - name: GF_SECURITY_ADMIN_USER
           value: {{ .Values.observability.grafana.adminUser | quote }}

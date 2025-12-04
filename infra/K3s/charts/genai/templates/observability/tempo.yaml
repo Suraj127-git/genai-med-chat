@@ -94,6 +94,13 @@ spec:
       - name: tempo
         image: {{ .Values.observability.images.tempo | quote }}
         args: ["-config.file=/etc/tempo/tempo.yaml"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 300m
+            memory: 512Mi
         ports:
         - containerPort: 3200
         - containerPort: 4318

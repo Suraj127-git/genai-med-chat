@@ -81,11 +81,11 @@ spec:
               key: LANGSMITH_TRACING
         resources:
           requests:
-            cpu: 250m
-            memory: 256Mi
+            cpu: 800m
+            memory: 1Gi
           limits:
             cpu: "1"
-            memory: 512Mi
+            memory: 2Gi
         readinessProbe:
           tcpSocket:
             port: {{ .Values.ports.chat }}
