@@ -33,9 +33,17 @@ spec:
       containers:
       - name: qdrant
         image: {{ .Values.images.qdrant | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
         ports:
         - containerPort: {{ .Values.ports.qdrantHttp }}
         - containerPort: {{ .Values.ports.qdrantGrpc }}
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: "2"
+            memory: 2Gi
         volumeMounts:
         - name: qdrant-storage
           mountPath: /qdrant/storage

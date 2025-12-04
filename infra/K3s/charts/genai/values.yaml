@@ -107,6 +107,7 @@ ingress:
 
 
 storage:
+  storageClassName: ""
   mongo:
     size: 10Gi
   qdrant:

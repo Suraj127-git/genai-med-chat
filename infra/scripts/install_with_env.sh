@@ -37,4 +37,4 @@ while IFS='=' read -r K V; do
   fi
 done < "$ENV_FILE"
 
-helm upgrade --install "$RELEASE_NAME" "$CHART_PATH" -n "$NAMESPACE" --create-namespace "${SET_ARGS[@]}" ${EXTRA_SET_ARGS:-}
+helm upgrade --install "$RELEASE_NAME" "$CHART_PATH" -n "$NAMESPACE" --create-namespace -f "$CHART_PATH/values-k3s.yaml" "${SET_ARGS[@]}" ${EXTRA_SET_ARGS:-}

@@ -1,0 +1,13 @@
+namespace: genai
+
+imagePullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: traefik
+  tls:
+    enabled: false
+
+storage:
+  storageClassName: local-path
+

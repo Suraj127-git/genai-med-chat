@@ -89,13 +89,10 @@ log "👤 Adding current user to docker group (no-op for root)."
 sudo usermod -aG docker "${USER:-$(whoami)}" || true
 
 # ---------- kind ----------
-log "📦 Installing kind (Kubernetes in Docker) if missing..."
-if ! command -v kind >/dev/null 2>&1; then
+log "📦 Installing k3s (lightweight Kubernetes) if missing..."
+if ! command -v k3s >/dev/null 2>&1; then
   curl --retry 5 --retry-delay 2 --fail --silent --show-error --location \
-    https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64 \
-    -o /tmp/kind
-  chmod +x /tmp/kind
-  sudo mv /tmp/kind /usr/local/bin/kind
+    https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 fi
 
 # ---------- summary ----------
@@ -126,10 +123,10 @@ else
   echo "🔴 docker: not installed"
 fi
 
-if command -v kind >/dev/null 2>&1; then
-  printf "🟢 kind: %s\n" "kind $(kind version | tr -d '\n')"
+if command -v k3s >/dev/null 2>&1; then
+  printf "🟢 k3s: %s\n" "$(k3s -v | tr -d '\n')"
 else
-  echo "🔴 kind: not installed"
+  echo "🔴 k3s: not installed"
 fi
 
 echo

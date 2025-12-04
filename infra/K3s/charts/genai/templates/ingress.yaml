@@ -4,9 +4,8 @@ kind: Ingress
 metadata:
   name: genai-ingress
   namespace: {{ .Values.namespace }}
-  annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls.enabled }}
   tls:
   - secretName: {{ .Values.ingress.tls.secretName }}

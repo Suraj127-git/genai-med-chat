@@ -30,8 +30,16 @@ spec:
       containers:
       - name: mongo
         image: {{ .Values.images.mongo | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
         ports:
         - containerPort: {{ .Values.ports.mongo }}
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
         volumeMounts:
         - name: mongo-storage
           mountPath: /data/db

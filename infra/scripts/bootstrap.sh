@@ -5,7 +5,7 @@ RELEASE_NAME="genai"
 NAMESPACE="genai"
 TLS_CERT_PATH=""
 TLS_KEY_PATH=""
-INGRESS_URL="https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml"
+INGRESS_URL=""
 FRONTEND_IMAGE="shettyanna/genai-frontend:latest"
 VITE_API_BASE_URL="http://gateway:8000"
 BUILD_FRONTEND="false"
@@ -38,14 +38,7 @@ kubectl label namespace "$NAMESPACE" app.kubernetes.io/managed-by=Helm --overwri
 kubectl annotate namespace "$NAMESPACE" meta.helm.sh/release-name="$RELEASE_NAME" --overwrite || true
 kubectl annotate namespace "$NAMESPACE" meta.helm.sh/release-namespace="$NAMESPACE" --overwrite || true
 
-CTX="$(kubectl config current-context 2>/dev/null || echo)"
-if [[ "$CTX" == kind* ]]; then
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-else
-  kubectl apply -f "$INGRESS_URL"
-fi
-sleep 5
-kubectl -n ingress-nginx wait --for=condition=available deploy/ingress-nginx-controller --timeout=300s || true
+kubectl -n kube-system wait --for=condition=available deploy/traefik --timeout=300s || true
 
 if [ -n "$TLS_CERT_PATH" ] && [ -n "$TLS_KEY_PATH" ]; then
   kubectl -n "$NAMESPACE" delete secret genai-tls --ignore-not-found
@@ -58,14 +51,9 @@ else
   kubectl -n "$NAMESPACE" create secret tls genai-tls --cert "$TMPCRT" --key "$TMPKEY"
 fi
 
-IP=""
-if [[ "$CTX" == kind* ]]; then
-  IP="127.0.0.1"
-else
-  IP="$(kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
-  [ -z "$IP" ] && IP="$(kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
-  [ -z "$IP" ] && IP="$(kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.spec.clusterIP}' 2>/dev/null || true)"
-fi
+IP="$(kubectl -n kube-system get svc traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
+[ -z "$IP" ] && IP="$(kubectl -n kube-system get svc traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+[ -z "$IP" ] && IP="$(kubectl -n kube-system get svc traefik -o jsonpath='{.spec.clusterIP}' 2>/dev/null || true)"
 if [ -n "$IP" ]; then
   for H in api.genai.local app.genai.local grafana.genai.local prometheus.genai.local tempo.genai.local; do
     grep -qE "\s$H$" /etc/hosts || echo "$IP $H" | sudo tee -a /etc/hosts >/dev/null
@@ -82,9 +70,6 @@ if [ "$BUILD_FRONTEND" = "true" ]; then
   fi
 fi
 
-if [[ "$CTX" == kind* ]]; then
-  export EXTRA_SET_ARGS="--set imagePullPolicy=IfNotPresent"
-fi
 "$(dirname "$0")/install_with_env.sh" -r "$RELEASE_NAME" -n "$NAMESPACE"
 
 kubectl -n "$NAMESPACE" get all

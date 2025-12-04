@@ -4,6 +4,9 @@ metadata:
   name: mongo-pvc
   namespace: {{ .Values.namespace }}
 spec:
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  {{- end }}
   accessModes:
   - ReadWriteOnce
   resources:
@@ -16,6 +19,9 @@ metadata:
   name: qdrant-pvc
   namespace: {{ .Values.namespace }}
 spec:
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  {{- end }}
   accessModes:
   - ReadWriteOnce
   resources:

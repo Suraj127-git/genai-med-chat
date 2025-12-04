@@ -18,8 +18,16 @@ spec:
       containers:
       - name: redis
         image: {{ .Values.images.redis | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
         ports:
         - containerPort: {{ .Values.ports.redis }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
         readinessProbe:
           tcpSocket:
             port: {{ .Values.ports.redis }}
